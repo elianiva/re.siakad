@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AiFillHome as HomeIcon } from "react-icons/ai";
-import { IoMdPeople as PeopleIcon } from "react-icons/io";
+import { IoMdPeople as PeopleIcon, IoMdBookmarks as BookmarkIcon } from "react-icons/io";
+import { MdScubaDiving as DocentIcon } from "react-icons/md";
 
 type MenuItem = {
 	icon: ReactNode;
@@ -15,18 +16,18 @@ export const MENU_ITEMS: MenuItem[] = [
 		path: "/app",
 	},
 	{
-		icon: <PeopleIcon className="h-6 w-6" />,
-		text: "List of Courses",
+		icon: <BookmarkIcon className="h-6 w-6" />,
+		text: "Courses",
 		path: "/app/courses",
 	},
 	{
-		icon: <PeopleIcon className="h-6 w-6" />,
-		text: "List of Lecturers",
+		icon: <DocentIcon className="h-6 w-6" />,
+		text: "Lecturers",
 		path: "/app/lecturers",
 	},
 	{
 		icon: <PeopleIcon className="h-6 w-6" />,
-		text: "List of Students",
+		text: "Students",
 		path: "/app/students",
 	},
 ];
