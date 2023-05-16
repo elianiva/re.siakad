@@ -1,9 +1,11 @@
 import { type GetServerSidePropsContext } from "next";
 import { getServerSession, type NextAuthOptions, type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "~/server/db";
+import { prisma } from "./db";
 import Credentials from "next-auth/providers/credentials";
-import { verify } from "argon2";
+import { hash, verify } from "argon2";
+import * as siakadClient from "./siakad-client";
+import { Student } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -25,16 +27,24 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-	callbacks: {
-		session: ({ session, user }) => ({
-			...session,
-			user: {
-				...session.user,
-				id: user.id,
-			},
-		}),
+	session: {
+		strategy: "jwt",
 	},
-	adapter: PrismaAdapter(prisma),
+	callbacks: {
+		jwt({ token, user }) {
+			if (user !== undefined) {
+				token.id = user.id;
+			}
+			return token;
+		},
+		session({ session, token }) {
+			if (session.user) {
+				// @ts-expect-error - ignore for now
+				session.user.id = token.id as string;
+			}
+			return session;
+		},
+	},
 	providers: [
 		Credentials({
 			name: "credentials",
@@ -46,36 +56,61 @@ export const authOptions: NextAuthOptions = {
 					placeholder: "password",
 				},
 			},
-			async authorize(credentials) {
-				if (credentials === undefined) {
-					throw new Error("Invalid credentials");
-				}
+			async authorize(credentials): Promise<Pick<Student, "id" | "nim" | "name" | "photo">> {
+				if (credentials === undefined) throw new Error("Invalid credentials");
 
-				const user = await prisma.student.findFirst({
+				let user = await prisma.student.findFirst({
 					where: { nim: credentials.nim },
 					select: {
 						id: true,
+						nim: true,
 						name: true,
 						password: true,
+						photo: true,
 					},
 				});
 
+				// create a user on their initial login
 				if (user === null) {
-					throw new Error("No student was found");
+					const canSignIn = await siakadClient.login({
+						nim: credentials.nim,
+						password: credentials.password,
+					});
+					if (!canSignIn) throw new Error("Incorrect username / password");
+
+					const studentData = await siakadClient.collectStudentData();
+					const hashedPassword = await hash(credentials.password);
+
+					user = await prisma.student.create({
+						data: {
+							...studentData,
+							password: hashedPassword,
+						},
+						select: {
+							id: true,
+							nim: true,
+							name: true,
+							password: true,
+							photo: true,
+						},
+					});
 				}
 
 				const isPasswordMatch = await verify(user.password, credentials.password);
-				if (!isPasswordMatch) {
-					throw new Error("Incorrect password");
-				}
+				if (!isPasswordMatch) throw new Error("Incorrect password");
 
 				return {
 					id: user.id,
+					nim: user.nim,
 					name: user.name,
+					photo: user.photo,
 				};
 			},
 		}),
 	],
+	pages: {
+		signIn: "/login",
+	},
 };
 
 /**

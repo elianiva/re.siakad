@@ -4,9 +4,11 @@ CREATE TYPE "LectureType" AS ENUM ('resource', 'assignment', 'url', 'quiz', 'for
 -- CreateTable
 CREATE TABLE "Student" (
     "id" TEXT NOT NULL,
+    "photo" TEXT NOT NULL,
     "nim" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
@@ -16,7 +18,7 @@ CREATE TABLE "Docent" (
     "id" TEXT NOT NULL,
     "nidn" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "profilePicture" TEXT NOT NULL,
+    "profile_picture" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "email" TEXT NOT NULL,
 
@@ -30,7 +32,7 @@ CREATE TABLE "Lecture" (
     "url" TEXT NOT NULL,
     "type" "LectureType" NOT NULL DEFAULT 'unknown',
     "deadline" TIMESTAMP(3) NOT NULL,
-    "meetingId" TEXT NOT NULL,
+    "meeting_id" TEXT NOT NULL,
 
     CONSTRAINT "Lecture_pkey" PRIMARY KEY ("id")
 );
@@ -39,7 +41,7 @@ CREATE TABLE "Lecture" (
 CREATE TABLE "Subject" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "docentId" TEXT NOT NULL,
+    "docent_id" TEXT NOT NULL,
 
     CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
 );
@@ -54,7 +56,7 @@ CREATE TABLE "Meeting" (
 );
 
 -- AddForeignKey
-ALTER TABLE "Lecture" ADD CONSTRAINT "Lecture_meetingId_fkey" FOREIGN KEY ("meetingId") REFERENCES "Meeting"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Lecture" ADD CONSTRAINT "Lecture_meeting_id_fkey" FOREIGN KEY ("meeting_id") REFERENCES "Meeting"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Subject" ADD CONSTRAINT "Subject_docentId_fkey" FOREIGN KEY ("docentId") REFERENCES "Docent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Subject" ADD CONSTRAINT "Subject_docent_id_fkey" FOREIGN KEY ("docent_id") REFERENCES "Docent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

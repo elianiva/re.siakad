@@ -10,16 +10,19 @@ datasource db {
 
 model Student {
     id       String @id @default(cuid())
+    photo    String
     nim      String
     name     String
     password String
+
+    createdAt DateTime @default(now()) @map("created_at")
 }
 
 model Docent {
     id             String @id @default(cuid())
     nidn           String
     name           String
-    profilePicture String
+    profilePicture String @map("profile_picture")
     phone          String
     email          String
 
@@ -43,8 +46,8 @@ model Lecture {
     type     LectureType @default(unknown)
     deadline DateTime
 
-    meetingId String
     meeting   Meeting @relation(fields: [meetingId], references: [id])
+    meetingId String  @map("meeting_id")
 }
 
 model Subject {
@@ -52,7 +55,7 @@ model Subject {
     title String
 
     docent   Docent @relation(fields: [docentId], references: [id])
-    docentId String
+    docentId String @map("docent_id")
 }
 
 model Meeting {

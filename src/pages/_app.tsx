@@ -8,10 +8,12 @@ import "~/styles/globals.css";
 import { BaseLayout } from "~/components/layouts/base-layout";
 import { Toaster } from "react-hot-toast";
 
-const MyApp: AppType<{ session: Session | null }> = ({
-	Component,
-	pageProps: { session, ...pageProps },
-}) => {
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/500.css";
+import "@fontsource/nunito/600.css";
+import "@fontsource/nunito/700.css";
+
+const MyApp: AppType<{ session: Session | null }> = ({ Component, pageProps: { session, ...pageProps } }) => {
 	return (
 		<SessionProvider session={session}>
 			<Toaster />
