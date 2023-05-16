@@ -1,0 +1,63 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+    provider = "postgres"
+    url      = env("DATABASE_URL")
+}
+
+model Student {
+    id       String @id @default(cuid())
+    nim      String
+    name     String
+    password String
+}
+
+model Docent {
+    id             String @id @default(cuid())
+    nidn           String
+    name           String
+    profilePicture String
+    phone          String
+    email          String
+
+    subjects Subject[]
+}
+
+enum LectureType {
+    resource
+    assignment
+    url
+    quiz
+    forum
+    page
+    unknown
+}
+
+model Lecture {
+    id       String      @id @default(cuid())
+    name     String
+    url      String
+    type     LectureType @default(unknown)
+    deadline DateTime
+
+    meetingId String
+    meeting   Meeting @relation(fields: [meetingId], references: [id])
+}
+
+model Subject {
+    id    String @id @default(cuid())
+    title String
+
+    docent   Docent @relation(fields: [docentId], references: [id])
+    docentId String
+}
+
+model Meeting {
+    id       String    @id @default(cuid())
+    subject  String
+    title    String
+    lectures Lecture[]
+}
