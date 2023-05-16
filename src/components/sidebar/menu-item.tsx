@@ -16,11 +16,13 @@ export function MenuItem(props: MenuItemProps) {
 		<Link
 			href={props.path}
 			className={`${
-				isActive ? "bg-orange-300" : "bg-neutral-50"
-			} flex items-center gap-4 rounded-lg border-2 border-neutral-900 px-8 py-4 text-xl font-bold`}
+				isActive ? "border-orange-600 bg-gradient-to-r from-orange-300 to-transparent" : "border-transparent"
+			} flex items-center gap-4 border-l-4 px-4 py-2 text-lg font-bold`}
 		>
-			{props.icon}
-			<span>{props.text}</span>
+			<div className={`rounded-full p-2 ${isActive ? "text-orange-700" : "text-neutral-700"}`}>
+				{props.icon}
+			</div>
+			<span className={isActive ? "text-orange-700" : "text-neutral-700"}>{props.text}</span>
 		</Link>
 	);
 }

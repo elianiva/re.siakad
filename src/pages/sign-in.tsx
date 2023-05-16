@@ -5,17 +5,23 @@ import { useSignIn, type LoginRequest, loginRequest } from "~/features/auth";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import Image from "next/image";
-import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
+import { type GetServerSidePropsContext, type GetServerSidePropsResult } from "next";
 import { getServerAuthSession } from "~/server/auth";
+import { useRouter } from "next/router";
 
-export default function SignIn() {
+const SignInPage: NextPageWithLayout = () => {
+	const router = useRouter();
 	const form = useForm<LoginRequest>({
 		resolver: zodResolver(loginRequest),
 	});
 	const { mutate: signIn } = useSignIn();
 
 	function handleSignIn(data: LoginRequest) {
-		signIn(data);
+		signIn(data, {
+			async onSuccess() {
+				await router.push("/app");
+			},
+		});
 	}
 
 	return (
@@ -24,24 +30,13 @@ export default function SignIn() {
 				<title>RE:SIAKAD</title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
+			<Image className="-z-20" src="/bg.jpg" alt="Background" fill style={{ objectFit: "cover" }} />
+			<div className="fixed bottom-0 left-0 right-0 top-0 -z-10 bg-white/60 backdrop-blur-md" />
 			<div className="flex h-full w-full items-center justify-center">
-				<div className="with-decoration relative">
-					<style jsx>{`
-						.with-decoration::before {
-							content: "";
-							position: absolute;
-							left: -1rem;
-							right: -1rem;
-							bottom: -1rem;
-							height: 10rem;
-							background-color: white;
-							border-radius: 0.75rem;
-							border: 4px #171717 solid;
-						}
-					`}</style>
-					<div className="relative z-10 flex w-full items-center gap-20 rounded-xl border-4 border-neutral-900 bg-white px-20 py-16">
+				<div className="relative">
+					<div className="relative z-10 flex w-full items-center gap-20 rounded-xl bg-white/75 px-20 py-16 shadow-lg backdrop-blur-lg">
 						<Image src="/logo.png" alt="RE:SIAKAD" width={280} height={280} />
-						<div className="h-80 w-1 rounded-full bg-neutral-900" />
+						<div className="h-80 w-[2px] rounded-full bg-neutral-300" />
 						<Form form={form} onSubmit={handleSignIn}>
 							<Input label="NIM" placeholder="2241720000" {...form.register("nim")} />
 							<Input
@@ -50,7 +45,7 @@ export default function SignIn() {
 								placeholder="••••••••"
 								{...form.register("password")}
 							/>
-							<button className="mx-auto mt-8 w-fit rounded-md border-2 border-neutral-900 bg-orange-300 px-8 py-4 text-xl font-bold text-neutral-900">
+							<button className="mx-auto mt-8 w-fit rounded-md bg-gradient-to-tr from-orange-400 to-orange-300 px-8 py-4 text-xl font-bold text-neutral-900 shadow-xl shadow-orange-200">
 								LOGIN
 							</button>
 						</Form>
@@ -59,12 +54,14 @@ export default function SignIn() {
 			</div>
 		</>
 	);
-}
+};
+
+export default SignInPage;
 
 export async function getServerSideProps({
 	req,
 	res,
-}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<{}>> {
+}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<unknown>> {
 	const session = await getServerAuthSession({ req, res });
 	if (session !== null) {
 		return {

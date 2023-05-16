@@ -71,7 +71,7 @@ async function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {})
 
 async function fetch<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
 	// serialise the cookie
-	let cookieString = cookieJar
+	const cookieString = cookieJar
 		.entries()
 		.map((cookie) => `${cookie.key}=${cookie.value}`)
 		.join("; ");
@@ -97,7 +97,7 @@ async function fetch<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
 	}) as Promise<TResponse>;
 }
 
-export async function collectCookies() {
+export async function collectCookies(opts: { credentials: LoginOptions }) {
 	try {
 		logger.info("collecting siakad cookies");
 		await collectSiakadCookies();
@@ -109,7 +109,7 @@ export async function collectCookies() {
 
 	try {
 		logger.info("attempting login");
-		// await login({ hasCookie: true });
+		await login(opts.credentials);
 		logger.info("successfully logged in");
 	} catch (err) {
 		logger.error("failed to login");
@@ -135,12 +135,12 @@ export async function collectCookies() {
 	}
 }
 
-export async function fetchSubjectsContent() {
+export async function fetchCoursesContent() {
 	const response: string = await fetch(`${env.SLC_URL}/spada`, { parseResponse: (text) => text });
 	return response;
 }
 
-export async function fetchLmsContent(courseUrl: string) {
+export async function fetchLmsContent(courseUrl: string): Promise<string> {
 	// the first firstResponse, which has a url format of `slcUrl/spada/?gotourl=xxx` is used to get the cookie needed for the lms page itself
 	// the firstResponse is a <script>window.location="<lmsUrl>"</script>, which we do in the second request
 	// not sure why they use client side redirect instead of responding with 302 status code
@@ -158,5 +158,5 @@ export async function fetchLmsContent(courseUrl: string) {
 		}
 	}
 
-	return await fetch(courseUrl, { parseResponse: (text) => text });
+	return fetch(courseUrl, { parseResponse: (text) => text });
 }

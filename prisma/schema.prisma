@@ -11,7 +11,7 @@ datasource db {
 model Student {
     id       String @id @default(cuid())
     photo    String
-    nim      String
+    nim      String @unique
     name     String
     password String
 
@@ -19,14 +19,14 @@ model Student {
 }
 
 model Docent {
-    id             String @id @default(cuid())
-    nidn           String
-    name           String
-    profilePicture String @map("profile_picture")
-    phone          String
-    email          String
+    id    String @id @default(cuid())
+    nidn  String
+    name  String @unique
+    photo String
+    phone String
+    email String
 
-    subjects Subject[]
+    subjects Course[]
 }
 
 enum LectureType {
@@ -42,7 +42,7 @@ enum LectureType {
 model Lecture {
     id       String      @id @default(cuid())
     name     String
-    url      String
+    url      String      @unique
     type     LectureType @default(unknown)
     deadline DateTime
 
@@ -50,17 +50,25 @@ model Lecture {
     meetingId String  @map("meeting_id")
 }
 
-model Subject {
+model Course {
     id    String @id @default(cuid())
-    title String
+    title String @unique
 
     docent   Docent @relation(fields: [docentId], references: [id])
     docentId String @map("docent_id")
+
+    meetings Meeting[]
 }
 
 model Meeting {
-    id       String    @id @default(cuid())
-    subject  String
-    title    String
+    id          String @id @default(cuid())
+    title       String
+    courseTitle String
+
     lectures Lecture[]
+
+    courseId String @map("course_id")
+    course   Course @relation(fields: [courseId], references: [id])
+
+    @@unique([courseTitle, title])
 }

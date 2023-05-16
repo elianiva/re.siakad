@@ -1,11 +1,10 @@
 import { type GetServerSidePropsContext } from "next";
 import { getServerSession, type NextAuthOptions, type DefaultSession } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
 import Credentials from "next-auth/providers/credentials";
 import { hash, verify } from "argon2";
 import * as siakadClient from "./siakad-client";
-import { Student } from "@prisma/client";
+import { type Student } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -109,7 +108,7 @@ export const authOptions: NextAuthOptions = {
 		}),
 	],
 	pages: {
-		signIn: "/login",
+		signIn: "/sign-in",
 	},
 };
 

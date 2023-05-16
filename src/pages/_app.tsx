@@ -1,11 +1,9 @@
-import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
-import { BaseLayout } from "~/components/layouts/base-layout";
 import { Toaster } from "react-hot-toast";
 
 import "@fontsource/nunito/400.css";
@@ -13,13 +11,12 @@ import "@fontsource/nunito/500.css";
 import "@fontsource/nunito/600.css";
 import "@fontsource/nunito/700.css";
 
-const MyApp: AppType<{ session: Session | null }> = ({ Component, pageProps: { session, ...pageProps } }) => {
+const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) => {
+	const getLayout = Component.getLayout || ((page) => page);
 	return (
-		<SessionProvider session={session}>
+		<SessionProvider session={session as Session}>
 			<Toaster />
-			<BaseLayout>
-				<Component {...pageProps} />
-			</BaseLayout>
+			{getLayout(<Component {...pageProps} />)}
 		</SessionProvider>
 	);
 };

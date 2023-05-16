@@ -10,17 +10,22 @@ type MenuItem = {
 
 export const MENU_ITEMS: MenuItem[] = [
 	{
-		icon: <HomeIcon />,
+		icon: <HomeIcon className="h-6 w-6" />,
 		text: "Overview",
 		path: "/app",
 	},
 	{
-		icon: <PeopleIcon />,
-		text: "List of Students",
+		icon: <PeopleIcon className="h-6 w-6" />,
+		text: "List of Courses",
+		path: "/app/courses",
+	},
+	{
+		icon: <PeopleIcon className="h-6 w-6" />,
+		text: "List of Lecturers",
 		path: "/app/lecturers",
 	},
 	{
-		icon: <PeopleIcon />,
+		icon: <PeopleIcon className="h-6 w-6" />,
 		text: "List of Students",
 		path: "/app/students",
 	},
