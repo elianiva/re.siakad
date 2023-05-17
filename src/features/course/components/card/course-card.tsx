@@ -12,7 +12,7 @@ type CourseMeeting = Pick<Meeting, "id" | "title" | "topic" | "competence"> & {
 
 type CourseCardProps = {
 	title: string;
-	subtitle: string;
+	docent: string;
 	meetings: CourseMeeting[];
 };
 
@@ -38,7 +38,7 @@ export function CourseCard(props: CourseCardProps) {
 				<div className="col-start-2 row-start-2 grid grid-cols-4 items-center gap-8">
 					<div className="flex items-center gap-2 text-neutral-700">
 						<PersonIcon />
-						<span className="text-md">{props.subtitle}</span>
+						<span className="text-md">{props.docent}</span>
 					</div>
 					<div className="flex items-center gap-2 text-neutral-700">
 						<MeetingIcon />

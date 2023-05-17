@@ -57,20 +57,6 @@ function extractLecture(node: cheerio.Cheerio<cheerio.Element>): SimpleLecture |
 	return { name, url, type: lectureType };
 }
 
-function extractText(element: cheerio.Element) {
-	let text = "";
-
-	element.children.forEach((child) => {
-		if (child.type === "text") {
-			text += child.data;
-		} else if (child.type === "tag") {
-			text += extractText(child);
-		}
-	});
-
-	return text;
-}
-
 type MeetingWithLectures = Pick<Meeting, "title" | "topic" | "competence"> & { lectures: SimpleLecture[] };
 
 function extractMeeting(element: cheerio.Cheerio<cheerio.Element>): MeetingWithLectures {
@@ -96,20 +82,20 @@ function extractMeeting(element: cheerio.Cheerio<cheerio.Element>): MeetingWithL
 
 function extractDocents(html: string): Pick<Docent, "email" | "name" | "photo"> {
 	const $ = cheerio.load(html);
-	const [name, email] = $(SELECTOR.docentInfo).text().replace("Nama : ", "").split(".Email: ") as [
-		string,
-		string | undefined
-	];
+	const [name = "Unknown", email = "-"] = $(SELECTOR.docentInfo).text().replace("Nama : ", "").split(".Email: ");
+	const nonEmptyName = name.length > 0 ? name : "Unknown";
+	const nonEmptyEmail = email.length > 0 ? email : "unknown@polinema";
+
 	let photo =
 		$(`${SELECTOR.docentInfo} img`).attr("src") ??
-		"https://twirpz.files.wordpress.com/2015/06/twitter-avi-gender-balanced-figure.png";
+		`https://ui-avatars.com/api/?name=${nonEmptyName.replaceAll(" ", "+")}`;
 
 	// conditionally append the protocol to handle the docent image source correctly
 	if (!photo.startsWith("https://")) {
 		photo = "https:" + photo;
 	}
 
-	return { name: name.length > 0 ? name : "-", photo, email: email ?? "-" };
+	return { name: nonEmptyName, photo, email: nonEmptyEmail };
 }
 
 function collectMeetings(rawMeetings: string): { courseName: string; meetings: MeetingWithLectures[] } {
@@ -137,6 +123,9 @@ export function collectCourseLinks(html: string): string[] {
 		.filter((url) => url !== undefined);
 }
 
+// TODO(elianiva): move to env
+const BLACKLISTED_COURSE = ["6360"];
+
 export async function collectCourses(rawCourses: string) {
 	const links = collectCourseLinks(rawCourses).sort();
 	const courses = await Promise.all(
@@ -144,11 +133,14 @@ export async function collectCourses(rawCourses: string) {
 			const url = new URL(link);
 			const id = url.searchParams.get("id");
 			if (id === null) return undefined;
+			if (BLACKLISTED_COURSE.includes(id)) return undefined;
+
 			logger.info(`collecting content for ${id}`);
 			const lmsContent = await siakadClient.fetchLmsContent(link);
 			const { courseName: courseName, meetings } = collectMeetings(lmsContent);
 			const docent = extractDocents(lmsContent);
 			logger.info(`done with ${id}`);
+
 			return { title: courseName, docent, courseId: id, meetings };
 		})
 	);

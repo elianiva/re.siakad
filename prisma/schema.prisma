@@ -19,14 +19,14 @@ model Student {
 }
 
 model Docent {
-    id    String @id @default(cuid())
+    id    String  @id @default(cuid())
     nidn  String
-    name  String @unique
-    photo String
+    name  String  @unique
+    photo String?
     phone String
     email String
 
-    subjects Course[]
+    courses Course[]
 }
 
 enum LectureType {

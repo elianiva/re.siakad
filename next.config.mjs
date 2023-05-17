@@ -24,6 +24,14 @@ const config = {
 				protocol: "https",
 				hostname: "akademik.polinema.ac.id",
 			},
+			{
+				protocol: "https",
+				hostname: "ui-avatars.com",
+			},
+			{
+				protocol: "https",
+				hostname: "slc.polinema.ac.id",
+			},
 		],
 	},
 };

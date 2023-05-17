@@ -22,8 +22,8 @@ export const MENU_ITEMS: MenuItem[] = [
 	},
 	{
 		icon: <DocentIcon className="h-6 w-6" />,
-		text: "Lecturers",
-		path: "/app/lecturers",
+		text: "Docents",
+		path: "/app/docents",
 	},
 	{
 		icon: <PeopleIcon className="h-6 w-6" />,

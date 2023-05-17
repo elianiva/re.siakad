@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
 
-export function useCourses() {
+export function useAllCourses() {
 	return api.course.getAll.useQuery();
 }
