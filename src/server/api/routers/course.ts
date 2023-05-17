@@ -1,5 +1,3 @@
-import { TRPCError } from "@trpc/server";
-
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const courseRouter = createTRPCRouter({
@@ -10,6 +8,22 @@ export const courseRouter = createTRPCRouter({
 				docent: {
 					select: {
 						name: true,
+					},
+				},
+				meetings: {
+					select: {
+						id: true,
+						title: true,
+						topic: true,
+						competence: true,
+						lectures: {
+							select: {
+								id: true,
+								name: true,
+								url: true,
+								type: true,
+							},
+						},
 					},
 				},
 			},

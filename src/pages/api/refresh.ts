@@ -83,6 +83,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				create: {
 					title: meeting.title,
 					courseTitle: course.title,
+					competence: meeting.competence,
+					topic: meeting.topic,
 					course: {
 						connect: {
 							title: course.title,

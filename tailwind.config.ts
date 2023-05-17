@@ -8,5 +8,6 @@ export default {
 			sans: ["Nunito", "sans-serif"],
 		},
 	},
-	plugins: [],
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
+	plugins: [require("tailwind-scrollbar")({ nocompatible: true })],
 } satisfies Config;

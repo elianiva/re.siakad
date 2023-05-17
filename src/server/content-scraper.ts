@@ -8,6 +8,7 @@ const SELECTOR = {
 	subjectName: ".page-header-headings",
 	topicItem: ".topics > li .content",
 	sectionTitle: ".sectionname",
+	meetingDetail: ".summary tbody tbody tr td:last-child",
 	lectureList: "ul.section > li",
 	activityInstance: ".activityinstance a",
 	instanceName: ".instancename",
@@ -56,10 +57,28 @@ function extractLecture(node: cheerio.Cheerio<cheerio.Element>): SimpleLecture |
 	return { name, url, type: lectureType };
 }
 
-type MeetingWithLectures = Pick<Meeting, "title"> & { lectures: SimpleLecture[] };
+function extractText(element: cheerio.Element) {
+	let text = "";
+
+	element.children.forEach((child) => {
+		if (child.type === "text") {
+			text += child.data;
+		} else if (child.type === "tag") {
+			text += extractText(child);
+		}
+	});
+
+	return text;
+}
+
+type MeetingWithLectures = Pick<Meeting, "title" | "topic" | "competence"> & { lectures: SimpleLecture[] };
 
 function extractMeeting(element: cheerio.Cheerio<cheerio.Element>): MeetingWithLectures {
-	const sectionTitle = element.find(SELECTOR.sectionTitle).text();
+	const $ = cheerio.load("");
+	const title = element.find(SELECTOR.sectionTitle).text();
+	const [topic = "-", competence = "-"] = element
+		.find(SELECTOR.meetingDetail)
+		.map((_, node) => $.html(node.children));
 	const $lectures = element.find(SELECTOR.lectureList) ?? [];
 	const lectures = $lectures
 		.map((_, el) => {
@@ -72,7 +91,7 @@ function extractMeeting(element: cheerio.Cheerio<cheerio.Element>): MeetingWithL
 		.get()
 		.filter((lecture) => lecture !== undefined);
 
-	return { title: sectionTitle, lectures };
+	return { title, lectures, topic, competence };
 }
 
 function extractDocents(html: string): Pick<Docent, "email" | "name" | "photo"> {

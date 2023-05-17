@@ -50,6 +50,8 @@ CREATE TABLE "Course" (
 CREATE TABLE "Meeting" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "topic" TEXT NOT NULL,
+    "competence" TEXT NOT NULL,
     "courseTitle" TEXT NOT NULL,
     "course_id" TEXT NOT NULL,
 

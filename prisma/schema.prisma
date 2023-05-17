@@ -63,6 +63,8 @@ model Course {
 model Meeting {
     id          String @id @default(cuid())
     title       String
+    topic       String
+    competence  String
     courseTitle String
 
     lectures Lecture[]

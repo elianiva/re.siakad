@@ -1,4 +1,4 @@
-import { Card } from "~/components/card/card";
+import { CourseCard } from "~/components/card/course-card";
 import { SearchBar } from "~/components/form/search-bar";
 import { BaseLayout } from "~/components/layouts/base-layout";
 import { useCourses } from "~/features/course/services/useCourses";
@@ -16,7 +16,12 @@ const CoursesPage: NextPageWithLayout = () => {
 			<SearchBar onSubmit={handleSearch} />
 			<div className="flex flex-col gap-4">
 				{[...courses, ...courses].map((course) => (
-					<Card key={course.title} subtitle={course.docent.name} {...course} />
+					<CourseCard
+						key={course.title}
+						subtitle={course.docent.name}
+						title={course.title}
+						meetings={course.meetings}
+					/>
 				))}
 			</div>
 		</div>
