@@ -1,4 +1,4 @@
-import { type LectureType, type Lecture } from "@prisma/client";
+import { LectureType, type Lecture } from "@prisma/client";
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { IoIosPaper as ResourceIcon } from "react-icons/io";
@@ -25,7 +25,7 @@ type MeetingCardProps = {
 
 export function MeetingCard(props: MeetingCardProps) {
 	return (
-		<div className="rounded-md border border-neutral-200 bg-white px-6 py-4 shadow-sm">
+		<div className="rounded-lg border border-neutral-200 bg-white px-6 py-4 shadow-sm">
 			<span className="text-md font-bold text-neutral-900">{props.title}</span>
 			<div className="grid grid-cols-[7rem,auto] py-2 text-neutral-700">
 				<span>Topic:</span>
@@ -40,7 +40,7 @@ export function MeetingCard(props: MeetingCardProps) {
 						{LECTURE_ICON_MAP[lecture.type]}
 						<Link
 							className="border-b-2 border-dashed border-sky-400 hover:border-solid"
-							href={`/app/lectures/${lecture.id}`}
+							href={lecture.type === LectureType.assignment ? `/app/lectures/${lecture.id}` : lecture.url}
 						>
 							{lecture.name}
 						</Link>

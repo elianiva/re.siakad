@@ -9,11 +9,13 @@ datasource db {
 }
 
 model Student {
-    id       String @id @default(cuid())
-    photo    String
-    nim      String @unique
-    name     String
-    password String
+    id           String @id @default(cuid())
+    photo        String
+    nim          String @unique
+    name         String
+    password     String
+    placeOfBirth String @map("place_of_birth")
+    dateOfBirth  String @map("date_of_birth")
 
     createdAt DateTime @default(now()) @map("created_at")
 }
