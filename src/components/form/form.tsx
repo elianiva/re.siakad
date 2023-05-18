@@ -13,19 +13,21 @@ export function Form<TSchema extends FieldValues = FieldValues>({ onSubmit, ...p
 			<form
 				method="post"
 				className={props.className}
-				onSubmit={props.form.handleSubmit(
-					(data, event) => {
-						event?.preventDefault();
-						try {
-							onSubmit(data);
-						} catch (err: unknown) {
-							/* noop */
+				onSubmit={() =>
+					props.form.handleSubmit(
+						(data, event) => {
+							event?.preventDefault();
+							try {
+								onSubmit(data);
+							} catch (err: unknown) {
+								/* noop */
+							}
+						},
+						(errors) => {
+							console.log({ errors });
 						}
-					},
-					(errors) => {
-						console.log({ errors });
-					}
-				)}
+					)
+				}
 			>
 				<fieldset className="flex flex-col gap-4" disabled={props.form.formState.isSubmitting}>
 					{props.children}

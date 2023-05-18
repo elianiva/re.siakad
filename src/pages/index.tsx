@@ -7,7 +7,7 @@ export default function IndexPage() {
 export async function getServerSideProps({
 	req,
 	res,
-}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<{}>> {
+}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<unknown>> {
 	const session = await getServerAuthSession({ req, res });
 	if (session !== null) {
 		return {

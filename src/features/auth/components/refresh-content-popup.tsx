@@ -45,9 +45,14 @@ export function AuthPopup(props: AuthPopupProps) {
 									Cancel
 								</button>
 							</Dialog.Close>
-							<button className="rounded-md bg-sky-600 px-4 py-3 font-medium text-white" type="submit">
-								Confirm
-							</button>
+							<Dialog.Close asChild>
+								<button
+									className="rounded-md bg-sky-600 px-4 py-3 font-medium text-white"
+									type="submit"
+								>
+									Confirm
+								</button>
+							</Dialog.Close>
 						</div>
 					</Form>
 				</Dialog.Content>

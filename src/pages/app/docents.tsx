@@ -32,8 +32,8 @@ const DocentsPage: NextPageWithLayout = () => {
 						name={docent.name}
 						email={docent.email}
 						nidn={docent.nidn}
-						phone={docent.phone}
-						photo={docent.photo}
+						phone={docent.phone ?? "081234567890"}
+						photo={docent.photo ?? ""}
 						courses={docent.courses}
 					/>
 				))}

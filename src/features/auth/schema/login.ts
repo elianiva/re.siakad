@@ -1,14 +1,7 @@
 import { z } from "zod";
 
-const NIM_ERROR = "Invalid NIM format! (ex: 2241720000)";
-
 export const loginRequest = z.object({
-	nim: z
-		.string()
-		.refine(
-			(str) => /[0-9]{10}/.test(str),
-			"Invalid NIM format! (ex: 2241720000)"
-		),
+	nim: z.string().refine((str) => /[0-9]{10}/.test(str), "Invalid NIM format! (ex: 2241720000)"),
 	password: z.string().min(1, "Password can't be empty!"),
 });
 

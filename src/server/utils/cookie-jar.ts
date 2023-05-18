@@ -7,6 +7,13 @@ export type Cookie = {
 	sameSite: boolean;
 };
 
+type RawCookie = {
+	Path: string;
+	SameSite: boolean;
+	Secure: boolean;
+	HttpOnly: string;
+}
+
 export class CookieJar {
 	private _storage = new Map<string, Cookie>();
 
@@ -40,7 +47,7 @@ export class CookieJar {
 		return cookieStrings.map((cookie) => {
 			const kvPairs = cookie.split(";").map((kvPair) => kvPair.split("=").map((s) => s.trim()));
 			const [key, value] = kvPairs[0] as [string, string];
-			const properties = Object.fromEntries(kvPairs.slice(1));
+			const properties = Object.fromEntries(kvPairs.slice(1)) as RawCookie;
 			return {
 				key,
 				value,

@@ -151,7 +151,7 @@ export async function refreshContent(options: RefreshContentOption): Promise<Ref
 	}
 
 	return {
-		status: 400,
+		status: 200,
 		message: "Successfully refreshed siakad data",
 	};
 }
