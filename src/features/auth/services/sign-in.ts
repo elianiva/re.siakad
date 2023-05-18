@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "next-auth/react";
-import type { LoginRequest } from "../schema/login";
 import { toast } from "react-hot-toast";
+import type { LoginRequest } from "../schema/login";
 
 async function signInWithCredential(credentials: LoginRequest) {
 	const response = await signIn("credentials", {

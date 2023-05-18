@@ -44,12 +44,14 @@ type LoginOptions = {
 };
 
 export async function login(opts: LoginOptions): Promise<boolean> {
+	logger.info("Collecting siakad cookies...");
 	await collectSiakadCookies();
 
 	const formData = new FormData();
 	formData.set("username", opts.nim);
 	formData.set("password", opts.password);
 
+	logger.info("Logging in...");
 	const response = await postForm<{ output: string }>(`${env.SIAKAD_URL}/login`, {
 		body: formData,
 		parseResponse: JSON.parse,
@@ -135,7 +137,7 @@ export async function collectCookies(opts: { credentials: LoginOptions }) {
 	}
 }
 
-export async function fetchCoursesContent() {
+export async function fetchCoursesList() {
 	const response: string = await fetch(`${env.SLC_URL}/spada`, { parseResponse: (text) => text });
 	return response;
 }

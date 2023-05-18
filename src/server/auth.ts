@@ -4,7 +4,9 @@ import { prisma } from "./db";
 import Credentials from "next-auth/providers/credentials";
 import { hash, verify } from "argon2";
 import * as siakadClient from "./siakad-client";
+import * as logger from "./utils/logger";
 import { type Student } from "@prisma/client";
+import { env } from "~/env.mjs";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -71,6 +73,7 @@ export const authOptions: NextAuthOptions = {
 
 				// create a user on their initial login
 				if (user === null) {
+					logger.info("Creating user from SIAKAD");
 					const canSignIn = await siakadClient.login({
 						nim: credentials.nim,
 						password: credentials.password,
@@ -80,9 +83,11 @@ export const authOptions: NextAuthOptions = {
 					const studentData = await siakadClient.collectStudentData();
 					const hashedPassword = await hash(credentials.password);
 
+					logger.info("Saving user to database");
 					user = await prisma.student.create({
 						data: {
 							...studentData,
+							role: credentials.nim === env.ADMIN_NIM ? "admin" : "member",
 							password: hashedPassword,
 						},
 						select: {
@@ -91,6 +96,7 @@ export const authOptions: NextAuthOptions = {
 							name: true,
 							password: true,
 							photo: true,
+							role: true,
 						},
 					});
 				}

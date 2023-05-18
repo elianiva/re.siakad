@@ -35,17 +35,27 @@ export function MeetingCard(props: MeetingCardProps) {
 			</div>
 			<hr className="my-2 h-[1px] w-full bg-neutral-400" />
 			<ul className="">
-				{props.lectures.map((lecture) => (
-					<li key={lecture.url} className="flex items-center gap-3 py-2 text-neutral-800">
-						{LECTURE_ICON_MAP[lecture.type]}
-						<Link
-							className="border-b-2 border-dashed border-sky-400 hover:border-solid"
-							href={lecture.type === LectureType.assignment ? `/app/lectures/${lecture.id}` : lecture.url}
-						>
-							{lecture.name}
-						</Link>
-					</li>
-				))}
+				{props.lectures.map((lecture) => {
+					let url = lecture.url;
+					switch (lecture.type) {
+						case LectureType.assignment:
+							url = `/app/lectures/${lecture.id}`;
+							break;
+						case LectureType.resource:
+							const fileId = new URL(lecture.url).searchParams.get("id")!;
+							url = `/app/lectures/${lecture.id}/file/${fileId}`;
+							break;
+					}
+
+					return (
+						<li key={lecture.url} className="flex items-center gap-3 py-2 text-neutral-800">
+							{LECTURE_ICON_MAP[lecture.type]}
+							<Link className="border-b-2 border-dashed border-sky-400 hover:border-solid" href={url}>
+								{lecture.name}
+							</Link>
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);

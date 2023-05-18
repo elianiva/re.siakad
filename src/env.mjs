@@ -25,6 +25,7 @@ export const env = createEnv({
 		SIAKAD_URL: z.string().url(),
 		SLC_URL: z.string().url(),
 		LMS_URL: z.string().url(),
+		ADMIN_NIM: z.string().min(10).max(10),
 	},
 
 	/**
@@ -53,5 +54,6 @@ export const env = createEnv({
 		SIAKAD_URL: process.env.SIAKAD_URL,
 		SLC_URL: process.env.SLC_URL,
 		LMS_URL: process.env.LMS_URL,
+		ADMIN_NIM: process.env.ADMIN_NIM,
 	},
 });

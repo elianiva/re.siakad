@@ -1,13 +1,12 @@
+import { type GetServerSidePropsContext, type GetServerSidePropsResult } from "next";
 import { useForm } from "react-hook-form";
 import Head from "next/head";
+import Image from "next/image";
+import { useRouter } from "next/router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignIn, type LoginRequest, loginRequest } from "~/features/auth";
-import { Form } from "~/components/form/form";
-import { Input } from "~/components/form/input";
-import Image from "next/image";
-import { type GetServerSidePropsContext, type GetServerSidePropsResult } from "next";
+import { Form, Input } from "~/components/form";
 import { getServerAuthSession } from "~/server/auth";
-import { useRouter } from "next/router";
 
 const SignInPage: NextPageWithLayout = () => {
 	const router = useRouter();

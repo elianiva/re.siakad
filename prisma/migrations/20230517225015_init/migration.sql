@@ -8,6 +8,8 @@ CREATE TABLE "Student" (
     "nim" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "date_of_birth" TEXT,
+    "address" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
@@ -18,9 +20,10 @@ CREATE TABLE "Docent" (
     "id" TEXT NOT NULL,
     "nidn" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "photo" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
+    "photo" TEXT,
+    "phone" TEXT,
     "email" TEXT NOT NULL,
+    "address" TEXT,
 
     CONSTRAINT "Docent_pkey" PRIMARY KEY ("id")
 );
@@ -41,6 +44,7 @@ CREATE TABLE "Lecture" (
 CREATE TABLE "Course" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "course_number" TEXT NOT NULL,
     "docent_id" TEXT NOT NULL,
 
     CONSTRAINT "Course_pkey" PRIMARY KEY ("id")

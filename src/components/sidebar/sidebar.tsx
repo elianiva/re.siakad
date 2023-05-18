@@ -1,16 +1,30 @@
 import Image from "next/image";
 import { FiLogOut as LogOutIcon } from "react-icons/fi";
-import { useProfile } from "~/features/auth/services/useProfile";
+import { IoMdRefresh as RefreshIcon } from "react-icons/io";
+import { toast } from "react-hot-toast";
+import { useSignOut, useProfile, type LoginRequest, useRefreshSiakadData, AuthPopup } from "~/features/auth";
+import {} from "~/features/auth/services/refresh";
+import { type RefreshContentResult } from "~/server/refresh-content";
 import { MENU_ITEMS } from "./data";
 import { MenuItem } from "./menu-item";
-import { useSignOut } from "~/features/auth/services/useSignOut";
 
 export function Sidebar() {
+	// server state
 	const profile = useProfile();
 	const { mutate: signOut } = useSignOut();
+	const { mutateAsync: refreshSiakadDataAsync } = useRefreshSiakadData();
 
+	// local state
 	function handleSignOut() {
 		signOut();
+	}
+
+	async function refreshSiakadData(data: LoginRequest) {
+		await toast.promise(refreshSiakadDataAsync(data), {
+			error: (result: RefreshContentResult) => `Failed to refresh SIAKAD data. Reason: ${result.message}`,
+			loading: "Refreshing SIAKAD data",
+			success: "SIAKAD data has been refreshed",
+		});
 	}
 
 	return (
@@ -23,7 +37,7 @@ export function Sidebar() {
 			</div>
 			<hr className="mx-auto h-[2px] w-4/5 bg-neutral-300" />
 			{profile !== undefined && (
-				<div className="col-gap-2 row-gap-1 grid grid-cols-[1fr,3fr,1fr] grid-rows-2 p-6">
+				<div className="grid grid-cols-[4rem,auto,3rem,3rem] grid-rows-2 gap-x-3 p-6">
 					<Image
 						className="row-span-2 h-14 w-14 rounded-full object-cover"
 						src={profile.photo}
@@ -33,8 +47,16 @@ export function Sidebar() {
 					/>
 					<span className="self-end text-lg font-bold text-neutral-900">{profile.name}</span>
 					<span className="col-start-2 row-start-2 text-sm text-neutral-600">{profile.nim}</span>
+					{profile.role === "admin" && (
+						<button className="col-start-3 row-span-3 cursor-pointer self-center justify-self-center text-neutral-400 hover:text-neutral-800">
+							<AuthPopup
+								icon={<RefreshIcon className="h-6 w-6" />}
+								onSubmit={(data) => void refreshSiakadData(data)}
+							/>
+						</button>
+					)}
 					<button
-						className="col-start-3 row-span-2 self-center justify-self-center text-neutral-400 hover:text-neutral-800"
+						className="col-start-4 row-span-2 self-center justify-self-center text-neutral-400 hover:text-neutral-800"
 						onClick={handleSignOut}
 					>
 						<LogOutIcon className="h-6 w-6" />

@@ -141,7 +141,7 @@ export async function collectCourses(rawCourses: string) {
 			const docent = extractDocents(lmsContent);
 			logger.info(`done with ${id}`);
 
-			return { title: courseName, docent, courseId: id, meetings };
+			return { title: courseName, docent, courseNumber: id, meetings };
 		})
 	);
 	return courses.filter((course) => course !== undefined);

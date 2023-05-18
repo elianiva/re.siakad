@@ -8,25 +8,32 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum StudentRole {
+    member
+    admin
+}
+
 model Student {
-    id           String @id @default(cuid())
-    photo        String
-    nim          String @unique
-    name         String
-    password     String
-    placeOfBirth String @map("place_of_birth")
-    dateOfBirth  String @map("date_of_birth")
+    id          String      @id @default(cuid())
+    photo       String
+    nim         String      @unique
+    name        String
+    password    String
+    dateOfBirth String?     @map("date_of_birth")
+    address     String?
+    role        StudentRole @default(member)
 
     createdAt DateTime @default(now()) @map("created_at")
 }
 
 model Docent {
-    id    String  @id @default(cuid())
-    nidn  String
-    name  String  @unique
-    photo String?
-    phone String
-    email String
+    id      String  @id @default(cuid())
+    nidn    String
+    name    String  @unique
+    photo   String?
+    phone   String?
+    email   String
+    address String?
 
     courses Course[]
 }
@@ -53,8 +60,9 @@ model Lecture {
 }
 
 model Course {
-    id    String @id @default(cuid())
-    title String @unique
+    id           String @id @default(cuid())
+    title        String @unique
+    courseNumber String @map("course_number")
 
     docent   Docent @relation(fields: [docentId], references: [id])
     docentId String @map("docent_id")
