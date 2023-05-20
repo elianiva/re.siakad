@@ -29,30 +29,37 @@ export function MeetingCard(props: MeetingCardProps) {
 			<span className="text-md font-bold text-neutral-900">{props.title}</span>
 			<div className="grid grid-cols-[7rem,auto] py-2 text-neutral-700">
 				<span>Topic:</span>
-				<span>{props.topic}</span>
+				<span dangerouslySetInnerHTML={{ __html: props.topic }}></span>
 				<span>Competence:</span>
 				<span dangerouslySetInnerHTML={{ __html: props.competence }}></span>
 			</div>
 			<hr className="my-2 h-[1px] w-full bg-neutral-400" />
 			<ul className="">
 				{props.lectures.map((lecture) => {
-					let url = lecture.url;
-					switch (lecture.type) {
-						case LectureType.assignment:
-							url = `/app/lectures/${lecture.id}`;
-							break;
-						case LectureType.resource:
-							const fileId = new URL(lecture.url).searchParams.get("id")!;
-							url = `/app/lectures/${lecture.id}/file/${fileId}`;
-							break;
-					}
-
+					const isAssignment = lecture.type === LectureType.assignment;
+					const isKnownResource = lecture.type === LectureType.resource || lecture.type === LectureType.url;
 					return (
 						<li key={lecture.url} className="flex items-center gap-3 py-2 text-neutral-800">
 							{LECTURE_ICON_MAP[lecture.type]}
-							<Link className="border-b-2 border-dashed border-sky-400 hover:border-solid" href={url}>
-								{lecture.name}
-							</Link>
+							{isAssignment ? (
+								<Link
+									className="border-b-2 border-dashed border-sky-400 hover:border-solid"
+									href={`/app/lectures/${lecture.id}`}
+								>
+									{lecture.name}
+								</Link>
+							) : (
+								<a
+									className="border-b-2 border-dashed border-sky-400 hover:border-solid"
+									href={
+										isKnownResource
+											? `/api/file/${new URL(lecture.url).searchParams.get("id")!}`
+											: lecture.url
+									}
+								>
+									{lecture.name}
+								</a>
+							)}
 						</li>
 					);
 				})}

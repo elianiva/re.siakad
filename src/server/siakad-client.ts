@@ -71,6 +71,10 @@ async function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {})
 	});
 }
 
+export function fetchFile(id: string) {
+	return fetch(`${env.LMS_URL}/mod/resource/view.php?id=${id}`);
+}
+
 async function fetch<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
 	// serialise the cookie
 	const cookieString = cookieJar

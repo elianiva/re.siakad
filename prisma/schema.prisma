@@ -14,14 +14,14 @@ enum StudentRole {
 }
 
 model Student {
-    id          String      @id @default(cuid())
-    photo       String
-    nim         String      @unique
-    name        String
-    password    String
-    dateOfBirth String?     @map("date_of_birth")
-    address     String?
-    role        StudentRole @default(member)
+    id            String      @id @default(cuid())
+    photo         String
+    nim           String      @unique
+    name          String
+    password      String
+    dateOfBirth   String?     @map("date_of_birth")
+    address       String?
+    role          StudentRole @default(member)
 
     createdAt DateTime @default(now()) @map("created_at")
 }

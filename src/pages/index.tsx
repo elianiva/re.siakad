@@ -13,7 +13,7 @@ export async function getServerSideProps({
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/app/home",
+				destination: "/app",
 			},
 		};
 	}
