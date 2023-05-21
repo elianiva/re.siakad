@@ -1,32 +1,13 @@
 import { type GetServerSidePropsContext } from "next";
-import { getServerSession, type NextAuthOptions, type DefaultSession } from "next-auth";
-import { prisma } from "./db";
-import Credentials from "next-auth/providers/credentials";
-import { hash, verify } from "argon2";
-import * as siakadClient from "./siakad-client";
-import * as logger from "./utils/logger";
+import { getServerSession, type NextAuthOptions, type User } from "next-auth";
 import { type Student } from "@prisma/client";
+import { hash, verify } from "argon2";
+import Credentials from "next-auth/providers/credentials";
+import * as siakadClient from "./siakad-client";
 import { env } from "~/env.mjs";
+import * as logger from "./utils/logger";
+import { prisma } from "./db";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
-declare module "next-auth" {
-	interface Session extends DefaultSession {
-		user: {
-			id: string;
-		} & DefaultSession["user"];
-	}
-}
-
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
 export const authOptions: NextAuthOptions = {
 	session: {
 		strategy: "jwt",
@@ -35,13 +16,16 @@ export const authOptions: NextAuthOptions = {
 		jwt({ token, user }) {
 			if (user !== undefined) {
 				token.id = user.id;
+				token.nim = user.nim;
 			}
 			return token;
 		},
 		session({ session, token }) {
-			if (session.user) {
-				// @ts-expect-error - ignore for now
-				session.user.id = token.id as string;
+			if (session.user !== undefined) {
+				session.user = {
+					id: token.id,
+					nim: token.nim,
+				} as User;
 			}
 			return session;
 		},
@@ -118,11 +102,6 @@ export const authOptions: NextAuthOptions = {
 	},
 };
 
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
 export const getServerAuthSession = (ctx: {
 	req: GetServerSidePropsContext["req"];
 	res: GetServerSidePropsContext["res"];

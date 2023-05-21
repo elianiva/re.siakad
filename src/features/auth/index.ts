@@ -8,4 +8,4 @@ export * from "./services/refresh";
 export * from "./schema/login";
 
 // components
-export * from "./components/refresh-content-popup";
+export * from "./components/auth-popup";

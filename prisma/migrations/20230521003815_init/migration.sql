@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "StudentRole" AS ENUM ('member', 'admin');
+
+-- CreateEnum
 CREATE TYPE "LectureType" AS ENUM ('resource', 'assignment', 'url', 'quiz', 'forum', 'page', 'unknown');
 
 -- CreateTable
@@ -10,6 +13,7 @@ CREATE TABLE "Student" (
     "password" TEXT NOT NULL,
     "date_of_birth" TEXT,
     "address" TEXT,
+    "role" "StudentRole" NOT NULL DEFAULT 'member',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")

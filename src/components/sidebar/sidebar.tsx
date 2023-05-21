@@ -2,11 +2,12 @@ import Image from "next/image";
 import { FiLogOut as LogOutIcon } from "react-icons/fi";
 import { IoMdRefresh as RefreshIcon } from "react-icons/io";
 import { toast } from "react-hot-toast";
-import { useSignOut, useProfile, type LoginRequest, useRefreshSiakadData, AuthPopup } from "~/features/auth";
+import { useSignOut, useProfile, useRefreshSiakadData, AuthPopup, type ReAuthRequest } from "~/features/auth";
 import {} from "~/features/auth/services/refresh";
 import { type RefreshContentResult } from "~/server/refresh-content";
 import { MENU_ITEMS } from "./data";
 import { MenuItem } from "./menu-item";
+import { useState } from "react";
 
 export function Sidebar() {
 	// server state
@@ -15,16 +16,19 @@ export function Sidebar() {
 	const { mutateAsync: refreshSiakadDataAsync } = useRefreshSiakadData();
 
 	// local state
+	const [isOpen, setOpen] = useState(false);
+
 	function handleSignOut() {
 		signOut();
 	}
 
-	async function refreshSiakadData(data: LoginRequest) {
+	async function refreshSiakadData(data: ReAuthRequest) {
 		await toast.promise(refreshSiakadDataAsync(data), {
 			error: (result: RefreshContentResult) => `Failed to refresh SIAKAD data. Reason: ${result.message}`,
 			loading: "Refreshing SIAKAD data",
 			success: "SIAKAD data has been refreshed",
 		});
+		setOpen(false);
 	}
 
 	return (
@@ -50,7 +54,14 @@ export function Sidebar() {
 					{profile.role === "admin" && (
 						<button className="col-start-3 row-span-3 cursor-pointer self-center justify-self-center text-neutral-400 hover:text-neutral-800">
 							<AuthPopup
-								icon={<RefreshIcon className="h-6 w-6" />}
+								isOpen={isOpen}
+								onOpenChange={setOpen}
+								description="We need your credentials to refresh the entire SIAKAD database. This is needed because we never store your plain SIAKAD password."
+								icon={
+									<div>
+										<RefreshIcon className="h-6 w-6" />
+									</div>
+								}
 								onSubmit={(data) => void refreshSiakadData(data)}
 							/>
 						</button>
