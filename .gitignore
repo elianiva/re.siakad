@@ -40,3 +40,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+docker-data/minio/*
+!docker-data/minio/.gitkeep
