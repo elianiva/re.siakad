@@ -26,6 +26,11 @@ export const env = createEnv({
 		SLC_URL: z.string().url(),
 		LMS_URL: z.string().url(),
 		ADMIN_NIM: z.string().min(10).max(10),
+		MINIO_ENDPOINT: z.string().min(1),
+		MINIO_PORT: z.coerce.number(),
+		MINIO_ACCESS_KEY: z.string().min(1),
+		MINIO_SECRET_KEY: z.string().min(1),
+		MINIO_BUCKET_NAME: z.string().min(1),
 	},
 
 	/**
@@ -55,5 +60,10 @@ export const env = createEnv({
 		SLC_URL: process.env.SLC_URL,
 		LMS_URL: process.env.LMS_URL,
 		ADMIN_NIM: process.env.ADMIN_NIM,
+		MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
+		MINIO_PORT: process.env.MINIO_PORT,
+		MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
+		MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
+		MINIO_BUCKET_NAME: process.env.MINIO_BUCKET_NAME,
 	},
 });

@@ -7,6 +7,7 @@ import * as siakadClient from "./siakad-client";
 import { env } from "~/env.mjs";
 import * as logger from "./utils/logger";
 import { prisma } from "./db";
+import { wrapResult } from "~/utils/wrap-result";
 
 export const authOptions: NextAuthOptions = {
 	session: {
@@ -59,13 +60,19 @@ export const authOptions: NextAuthOptions = {
 				if (user === null) {
 					logger.info("Creating user from SIAKAD");
 					const canSignIn = await siakadClient.login({
+						fresh: true,
 						nim: credentials.nim,
 						password: credentials.password,
 					});
 					if (!canSignIn) throw new Error("Incorrect username / password");
 
-					const studentData = await siakadClient.collectStudentData();
+					const [studentData, studentError] = await wrapResult(siakadClient.collectStudentData());
+					if (studentError !== null) throw new Error("Failed to collect student's data");
+
 					const hashedPassword = await hash(credentials.password);
+
+					const [cookie, cookieError] = await wrapResult(siakadClient.collectCookies({ immediate: true }));
+					if (cookieError !== null) throw new Error("Failed to collect student's cookies");
 
 					logger.info("Saving user to database");
 					user = await prisma.student.create({
@@ -73,6 +80,7 @@ export const authOptions: NextAuthOptions = {
 							...studentData,
 							role: credentials.nim === env.ADMIN_NIM ? "admin" : "member",
 							password: hashedPassword,
+							cookie: cookie,
 						},
 						select: {
 							id: true,

@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { reAuthRequest } from "~/features/auth";
+import { lmsReAuthRequest, reAuthRequest } from "~/features/auth";
 import { refreshContent } from "~/server/refresh-content";
+import * as siakadClient from "~/server/siakad-client";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const miscRouter = createTRPCRouter({
-	refresh: protectedProcedure.input(reAuthRequest).mutation(async ({ input, ctx }) => {
+	refreshData: protectedProcedure.input(reAuthRequest).mutation(async ({ input, ctx }) => {
 		const nim = ctx.session.user.nim;
 		if (nim === undefined) throw new TRPCError({ code: "BAD_REQUEST", message: "NIM is required" });
 
@@ -15,5 +16,18 @@ export const miscRouter = createTRPCRouter({
 		if (result.status === 500) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.message });
 
 		return result;
+	}),
+	refreshSession: protectedProcedure.input(lmsReAuthRequest).mutation(async ({ input, ctx }) => {
+		const nim = ctx.session.user.nim;
+		if (nim === undefined) throw new TRPCError({ code: "BAD_REQUEST", message: "NIM is required" });
+
+		const cookie = await siakadClient.collectCookies({
+			credentials: { nim, password: input.password },
+			courseUrl: input.courseUrl,
+		});
+		await ctx.prisma.student.update({
+			where: { nim },
+			data: { cookie },
+		});
 	}),
 });

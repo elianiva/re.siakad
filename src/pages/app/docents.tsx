@@ -9,7 +9,6 @@ const DocentsPage: NextPageWithLayout = () => {
 	const filteredDocents = useMemo(
 		() =>
 			docents.filter((docent) => {
-				console.log({ keyword });
 				if (keyword.length < 1) return true;
 				const keywordRE = new RegExp(keyword, "gi");
 				return keywordRE.test(docent.name);

@@ -8,3 +8,8 @@ export type LoginRequest = z.infer<typeof loginRequest>;
 
 export const reAuthRequest = loginRequest.omit({ nim: true });
 export type ReAuthRequest = z.infer<typeof reAuthRequest>;
+
+export const lmsReAuthRequest = reAuthRequest.extend({
+	courseUrl: z.string().url(),
+});
+export type LmsReAuthRequest = z.infer<typeof lmsReAuthRequest>;

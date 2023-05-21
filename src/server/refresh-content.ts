@@ -1,6 +1,6 @@
 import { verify } from "argon2";
 import { loginRequest } from "~/features/auth";
-import { wrapResult } from "~/utils/result";
+import { wrapResult } from "~/utils/wrap-result";
 import { prisma } from "./db";
 import * as logger from "./utils/logger";
 import * as siakadClient from "./siakad-client";

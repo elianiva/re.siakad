@@ -1,0 +1,12 @@
+{
+	"configurations": [
+		{
+			"name": "Debug",
+			"request": "launch",
+			"type": "node",
+			"skipFiles": ["<node_internals>/**"],
+			"runtimeExecutable": "pnpm",
+			"runtimeArgs": ["dev"]
+		}
+	]
+}

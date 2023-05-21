@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 type AuthPopupProps = {
 	isOpen?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	icon: ReactNode;
+	icon?: ReactNode;
 	description: string;
 	onSubmit: (data: ReAuthRequest) => void;
 };
@@ -28,7 +28,7 @@ export function AuthPopup(props: AuthPopupProps) {
 				}
 			}}
 		>
-			<Dialog.Trigger asChild>{props.icon}</Dialog.Trigger>
+			{props.icon !== undefined && <Dialog.Trigger asChild>{props.icon}</Dialog.Trigger>}
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-neutral-800/75 backdrop-blur-sm" />
 				<Dialog.Content className="fixed left-1/2 top-1/2 z-[51] w-full max-w-[40rem] -translate-x-1/2 -translate-y-1/2 overflow-y-hidden rounded-md bg-white p-10">
