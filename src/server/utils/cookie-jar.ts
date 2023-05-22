@@ -12,7 +12,7 @@ type RawCookie = {
 	SameSite: boolean;
 	Secure: boolean;
 	HttpOnly: string;
-}
+};
 
 export class CookieJar {
 	private _storage = new Map<string, Cookie>();
@@ -57,5 +57,11 @@ export class CookieJar {
 				secure: properties["Secure"] !== undefined,
 			};
 		});
+	}
+
+	public serialised(): string {
+		return this.entries()
+			.map((cookie) => `${cookie.key}=${cookie.value}`)
+			.join("; ");
 	}
 }

@@ -2,6 +2,8 @@ import * as cheerio from "cheerio";
 import * as siakadClient from "./siakad-client";
 import * as logger from "~/server/utils/logger";
 import { type Docent, type Lecture, LectureType, type Meeting } from "@prisma/client";
+import { env } from "~/env.mjs";
+import { ScrapeError } from "./error/scrape-error";
 
 const SELECTOR = {
 	subjectCard: ".gallery_grid_item.md-card-content > a",
@@ -19,6 +21,8 @@ const SELECTOR = {
 	modtypeForum: "modtype_forum",
 	modtypePage: "modtype_page",
 	docentInfo: ".summary td[valign='top']",
+	studentInformation: ".username",
+	studentPhoto: ".dropdown-user img[alt='FOTO']",
 } as const;
 
 type SimpleLecture = Pick<Lecture, "name" | "url" | "type">;
@@ -123,9 +127,6 @@ export function collectCourseLinks(html: string): string[] {
 		.filter((url) => url !== undefined);
 }
 
-// TODO(elianiva): move to env
-const BLACKLISTED_COURSE = ["6360"];
-
 export async function collectCourses(rawCourses: string) {
 	const links = collectCourseLinks(rawCourses).sort();
 	const courses = await Promise.all(
@@ -133,7 +134,7 @@ export async function collectCourses(rawCourses: string) {
 			const url = new URL(link);
 			const id = url.searchParams.get("id");
 			if (id === null) return undefined;
-			if (BLACKLISTED_COURSE.includes(id)) return undefined;
+			if (env.BLACKLISTED_COURSES.includes(id)) return undefined;
 
 			logger.info(`collecting content for ${id}`);
 			const lmsContent = await siakadClient.fetchLmsContent(link);
@@ -145,4 +146,20 @@ export async function collectCourses(rawCourses: string) {
 		})
 	);
 	return courses.filter((course) => course !== undefined);
+}
+
+type StudentData = {
+	photo: string;
+	nim: string;
+	name: string;
+};
+export function collectStudentInformation(html: string): StudentData {
+	const $ = cheerio.load(html);
+	const [nim, name] = $(SELECTOR.studentInformation)
+		.text()
+		.split("/")
+		.map((text) => text.trim());
+	if (nim === undefined || name === undefined) throw new ScrapeError("Couldn't get the student's name and NIM.");
+	const photo = $(SELECTOR.studentPhoto).attr("src") ?? "";
+	return { nim, name, photo };
 }

@@ -1,9 +1,9 @@
 import { type FetchOptions, ofetch } from "ofetch";
-import * as cheerio from "cheerio";
 import { env } from "~/env.mjs";
 import { wrapResult } from "~/utils/wrap-result";
 import { CookieJar } from "./utils/cookie-jar";
 import * as logger from "./utils/logger";
+import * as contentScraper from "./content-scraper";
 import { minioClient } from "./minio";
 import { SiakadFetchError } from "./error/siakad-fetch";
 import { InvalidResponseError } from "./error/invalid";
@@ -11,19 +11,19 @@ import { InvalidResponseError } from "./error/invalid";
 const cookieJar = new CookieJar();
 let hasMoodleSession = false;
 
-async function collectSiakadCookies() {
-	await fetchWithCookies(env.SIAKAD_URL, { method: "HEAD" });
+function collectSiakadCookies() {
+	return fetchWithCookies(env.SIAKAD_URL, { method: "HEAD" });
 }
 
-async function collectHomepageCookies() {
-	await fetchWithCookies(`${env.SIAKAD_URL}/beranda`, { method: "HEAD" });
+function collectHomepageCookies() {
+	return fetchWithCookies(`${env.SIAKAD_URL}/beranda`, { method: "HEAD" });
 }
 
-async function collectSlcCookies() {
-	await fetchWithCookies(env.SLC_URL, { method: "HEAD" });
+function collectSlcCookies() {
+	return fetchWithCookies(env.SLC_URL, { method: "HEAD" });
 }
 
-async function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
+function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
 	const headers = new Headers();
 	headers.set("Accept", "application/json");
 	headers.set("Referer", `${env.SIAKAD_URL}/login/index/err/6`);
@@ -35,18 +35,9 @@ async function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {})
 	});
 }
 
-function serialiseCookie(jar: CookieJar) {
-	return jar
-		.entries()
-		.map((cookie) => `${cookie.key}=${cookie.value}`)
-		.join("; ");
-}
-
 async function fetchWithCookies<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
-	const cookieString = serialiseCookie(cookieJar);
-
 	const headers = new Headers();
-	headers.set("Cookie", cookieString);
+	headers.set("Cookie", cookieJar.serialised());
 
 	// merge headers if it's provided from the option
 	if (options.headers !== undefined) {
@@ -62,7 +53,7 @@ async function fetchWithCookies<TResponse>(url: RequestInfo, options: FetchOptio
 		onResponse: ({ response }) => {
 			const cookies = response.headers.get("set-cookie");
 			if (cookies === null) return;
-			cookieJar.store(response.headers.get("set-cookie") ?? "");
+			cookieJar.store(cookies);
 		},
 	}) as Promise<TResponse>;
 }
@@ -74,14 +65,7 @@ type StudentData = {
 };
 export async function collectStudentData(): Promise<StudentData> {
 	const page = await fetchWithCookies<string>(`${env.SIAKAD_URL}/beranda`, { parseResponse: (text) => text });
-	const $ = cheerio.load(page);
-	const [nim, name] = $(".username")
-		.text()
-		.split("/")
-		.map((text) => text.trim());
-	if (nim === undefined || name === undefined) throw new SiakadFetchError("Couldn't get the student's name and NIM.");
-	const photo = $(".dropdown-user img[alt='FOTO']").attr("src");
-	return { nim, name, photo: photo ?? "" };
+	return contentScraper.collectStudentInformation(page);
 }
 
 type LoginOptions = {
@@ -104,6 +88,8 @@ export async function login(opts: LoginOptions): Promise<boolean> {
 		body: formData,
 		parseResponse: JSON.parse,
 	});
+
+	// NOTE(elianiva): not ideal, but it is what it is
 	return response.output === "ok";
 }
 
@@ -120,16 +106,14 @@ async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileRe
 	if (fetchError !== null || response === null) throw new SiakadFetchError();
 
 	// we need the filename part
-	// example -> Content-Disposition: inline; filename="Jobsheet 2 - Objek.pdf"
+	// example -> 'Content-Disposition: inline; filename="Jobsheet 2 - Objek.pdf"'
+	// into    -> 'Jobsheet 2 - Object.pdf'
 	const fileName = response.headers.get("Content-Disposition")!.match(/filename="(.+)"/)![1]!;
 
 	const [file, blobError] = await wrapResult(response.blob());
 	if (blobError !== null) throw new InvalidResponseError();
 
-	return {
-		file,
-		fileName,
-	};
+	return { file, fileName };
 }
 
 async function storeRemoteFile(name: string, file: Blob) {
@@ -167,7 +151,7 @@ type CollectCookiesOptions = ({ credentials: LoginOptions; immediate?: false } |
 	courseUrl?: string;
 };
 export async function collectCookies(opts: CollectCookiesOptions) {
-	if (opts.immediate) return serialiseCookie(cookieJar);
+	if (opts.immediate) return cookieJar.serialised();
 
 	logger.info("Collecting siakad cookies");
 	const [, siakadError] = await wrapResult(collectSiakadCookies());
@@ -211,7 +195,7 @@ export async function collectCookies(opts: CollectCookiesOptions) {
 		logger.info("lms cookie has been collected");
 	}
 
-	return serialiseCookie(cookieJar);
+	return cookieJar.serialised();
 }
 
 export function fetchCoursesList(): Promise<string> {
