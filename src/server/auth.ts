@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
 						prisma.student.create({
 							data: {
 								...studentData,
-								role: credentials.nim === env.ADMIN_NIM ? "admin" : "member",
+								role: env.ADMIN_NIMS.includes(credentials.nim) ? "admin" : "member",
 								password: hashedPassword,
 								cookie: cookie,
 							},
