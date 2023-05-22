@@ -34,6 +34,7 @@ export const env = createEnv({
 		MINIO_BUCKET_NAME: z.string().min(1),
 		SENTRY_DSN: z.string().url(),
 		LOGTAIL_TOKEN: z.string(),
+		CALENDAR_ID: z.string(),
 	},
 
 	/**
@@ -71,5 +72,6 @@ export const env = createEnv({
 		MINIO_BUCKET_NAME: process.env.MINIO_BUCKET_NAME,
 		SENTRY_DSN: process.env.SENTRY_DSN,
 		LOGTAIL_TOKEN: process.env.LOGTAIL_TOKEN,
+		CALENDAR_ID: process.env.CALENDAR_ID,
 	},
 });

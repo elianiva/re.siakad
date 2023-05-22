@@ -43,3 +43,6 @@ yarn-error.log*
 
 docker-data/minio/*
 !docker-data/minio/.gitkeep
+
+src/secrets/*
+!src/secrets/.gitkeep
