@@ -5,9 +5,9 @@ import { hash, verify } from "argon2";
 import Credentials from "next-auth/providers/credentials";
 import * as siakadClient from "./siakad-client";
 import { env } from "~/env.mjs";
-import * as logger from "./utils/logger";
 import { prisma } from "./db";
 import { wrapResult } from "~/utils/wrap-result";
+import { sentry } from "./utils/sentry";
 
 export const authOptions: NextAuthOptions = {
 	session: {
@@ -45,62 +45,102 @@ export const authOptions: NextAuthOptions = {
 			async authorize(credentials): Promise<Pick<Student, "id" | "nim" | "name" | "photo">> {
 				if (credentials === undefined) throw new Error("Invalid credentials");
 
-				let user = await prisma.student.findFirst({
-					where: { nim: credentials.nim },
-					select: {
-						id: true,
-						nim: true,
-						name: true,
-						password: true,
-						photo: true,
-					},
-				});
-
-				// create a user on their initial login
-				if (user === null) {
-					logger.info("Creating user from SIAKAD");
-					const canSignIn = await siakadClient.login({
-						fresh: true,
-						nim: credentials.nim,
-						password: credentials.password,
-					});
-					if (!canSignIn) throw new Error("Incorrect username / password");
-
-					const [studentData, studentError] = await wrapResult(siakadClient.collectStudentData());
-					if (studentError !== null) throw new Error("Failed to collect student's data");
-
-					const hashedPassword = await hash(credentials.password);
-
-					const [cookie, cookieError] = await wrapResult(siakadClient.collectCookies({ immediate: true }));
-					if (cookieError !== null) throw new Error("Failed to collect student's cookies");
-
-					logger.info("Saving user to database");
-					user = await prisma.student.create({
-						data: {
-							...studentData,
-							role: credentials.nim === env.ADMIN_NIM ? "admin" : "member",
-							password: hashedPassword,
-							cookie: cookie,
-						},
+				// need to reassign the `user` but not the `findUserError`
+				// eslint-disable-next-line prefer-const
+				let [student, findUserError] = await wrapResult(
+					prisma.student.findFirst({
+						where: { nim: credentials.nim },
 						select: {
 							id: true,
 							nim: true,
 							name: true,
 							password: true,
 							photo: true,
-							role: true,
 						},
+					})
+				);
+				if (findUserError !== null) {
+					sentry.captureException(findUserError, (scope) => {
+						scope.setContext("student", { nim: credentials.nim });
+						return scope;
 					});
+					throw new Error("Failed to find a student with the given credentials");
 				}
 
-				const isPasswordMatch = await verify(user.password, credentials.password);
+				// create a user on their initial login
+				if (student === null) {
+					const [canSignIn, loginError] = await wrapResult(
+						siakadClient.login({
+							fresh: true,
+							nim: credentials.nim,
+							password: credentials.password,
+						})
+					);
+					if (loginError !== null) {
+						sentry.captureException(findUserError, (scope) => {
+							scope.setContext("student", { nim: credentials.nim });
+							return scope;
+						});
+						throw new Error("Failed to login to the internal SIAKAD");
+					}
+					if (!canSignIn) throw new Error("Incorrect username / password");
+
+					const [studentData, studentError] = await wrapResult(siakadClient.collectStudentData());
+					if (studentError !== null) {
+						sentry.captureException(studentError, (scope) => {
+							scope.setContext("student", { nim: credentials.nim });
+							return scope;
+						});
+						throw new Error("Failed to collect student's data");
+					}
+
+					const hashedPassword = await hash(credentials.password);
+
+					const [cookie, cookieError] = await wrapResult(siakadClient.collectCookies({ immediate: true }));
+					if (cookieError !== null) {
+						sentry.captureException(cookieError, (scope) => {
+							scope.setContext("student", { nim: credentials.nim });
+							return scope;
+						});
+						throw new Error("Failed to collect student's cookies");
+					}
+
+					const [newStudent, createStudentError] = await wrapResult(
+						prisma.student.create({
+							data: {
+								...studentData,
+								role: credentials.nim === env.ADMIN_NIM ? "admin" : "member",
+								password: hashedPassword,
+								cookie: cookie,
+							},
+							select: {
+								id: true,
+								nim: true,
+								name: true,
+								password: true,
+								photo: true,
+								role: true,
+							},
+						})
+					);
+					if (createStudentError !== null) {
+						sentry.captureException(createStudentError, (scope) => {
+							scope.setContext("student", { nim: credentials.nim });
+							return scope;
+						});
+						throw new Error("Failed to create a new user");
+					}
+					student = newStudent;
+				}
+
+				const isPasswordMatch = await verify(student.password, credentials.password);
 				if (!isPasswordMatch) throw new Error("Incorrect password");
 
 				return {
-					id: user.id,
-					nim: user.nim,
-					name: user.name,
-					photo: user.photo,
+					id: student.id,
+					nim: student.nim,
+					name: student.name,
+					photo: student.photo,
 				};
 			},
 		}),

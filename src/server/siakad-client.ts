@@ -138,7 +138,6 @@ async function fetchLocalFileUrl(name: string): Promise<string> {
 
 export async function fetchFile(id: string, cookie: string): Promise<string> {
 	const [presignedUrl, localFileError] = await wrapResult(fetchLocalFileUrl(id));
-	console.log({ presignedUrl, localFileError });
 	if (localFileError !== null) {
 		const [remoteFile, remoteFileError] = await wrapResult(fetchRemoteFile(id, cookie));
 		if (remoteFileError !== null) throw remoteFileError;

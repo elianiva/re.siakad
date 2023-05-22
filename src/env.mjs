@@ -32,6 +32,8 @@ export const env = createEnv({
 		MINIO_ACCESS_KEY: z.string().min(1),
 		MINIO_SECRET_KEY: z.string().min(1),
 		MINIO_BUCKET_NAME: z.string().min(1),
+		SENTRY_DSN: z.string().url(),
+		LOGTAIL_TOKEN: z.string(),
 	},
 
 	/**
@@ -67,5 +69,7 @@ export const env = createEnv({
 		MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
 		MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
 		MINIO_BUCKET_NAME: process.env.MINIO_BUCKET_NAME,
+		SENTRY_DSN: process.env.SENTRY_DSN,
+		LOGTAIL_TOKEN: process.env.LOGTAIL_TOKEN,
 	},
 });

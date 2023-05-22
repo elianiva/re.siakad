@@ -4,6 +4,7 @@ import { prisma } from "~/server/db";
 import { SiakadFetchError } from "~/server/error/siakad-fetch";
 import { UnauthorizedError } from "~/server/error/unauthorized";
 import * as siakadClient from "~/server/siakad-client";
+import { sentry } from "~/server/utils/sentry";
 import { wrapResult } from "~/utils/wrap-result";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const student = await prisma.student.findFirst({
 		where: { id: session.user.id },
-		select: { cookie: true },
+		select: { cookie: true, nim: true },
 	});
 	if (student === null) {
 		res.status(404).json({ message: "No student found with the credentials you provided" });
@@ -43,7 +44,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			return;
 		}
 
-		console.log({ fetchFileError });
+		sentry.captureException(fetchFileError, (scope) => {
+			scope.setContext("course", {
+				fileId,
+				userId: session.user?.id,
+				nim: student.nim,
+			});
+			return scope;
+		});
 		res.status(500).json({ message: "Internal server error" });
 		return;
 	}

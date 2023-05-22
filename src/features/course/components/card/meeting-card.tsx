@@ -48,7 +48,6 @@ export function MeetingCard(props: MeetingCardProps) {
 			setOpen(true);
 			return;
 		}
-		console.log({ fileUrl });
 
 		if (fileUrl === null) return;
 		await router.push(fileUrl);
