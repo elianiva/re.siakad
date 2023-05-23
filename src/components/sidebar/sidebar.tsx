@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { motion, useCycle } from "framer-motion";
 import Image from "next/image";
 import { FiLogOut as LogOutIcon } from "react-icons/fi";
 import { IoMdRefresh as RefreshIcon } from "react-icons/io";
@@ -6,7 +8,6 @@ import { useSignOut, useProfile, useRefreshSiakadData, AuthPopup, type ReAuthReq
 import { type RefreshContentResult } from "~/server/refresh-content";
 import { MENU_ITEMS } from "./data";
 import { MenuItem } from "./menu-item";
-import { useState } from "react";
 
 export function Sidebar() {
 	// server state
@@ -16,7 +17,8 @@ export function Sidebar() {
 
 	// local state
 	const [isOpen, setOpen] = useState(false);
-	const [isMinimised, setMinimised] = useState(false);
+	const [isMinimised, cycleMinimised] = useCycle(false, true);
+	// const [isMinimised, setMinimised] = useState(false);
 
 	function handleSignOut() {
 		signOut();
@@ -32,18 +34,19 @@ export function Sidebar() {
 	}
 
 	return (
-		<aside
-			className={`flex h-full ${
-				isMinimised ? "w-[5rem]" : "w-[32rem]"
-			} flex-col gap-2 rounded-xl bg-white/75 shadow-lg backdrop-blur-md`}
+		<motion.aside
+			animate={{
+				width: isMinimised ? "5rem" : "32rem",
+			}}
+			className="flex h-full flex-col gap-2 rounded-xl bg-white/75 shadow-lg backdrop-blur-md"
 		>
 			<Image
-				className="absolute left-1/2 mx-auto -translate-x-1/2 py-10"
-				src="/logo-wide.png"
+				className="absolute left-1/2 mx-auto -translate-x-1/2 cursor-pointer py-10"
+				src={isMinimised ? "/logo.png" : "/logo-wide.png"}
 				width={240}
 				height={40}
 				alt="RE:SIAKAD logo"
-				onClick={() => setMinimised((prev) => !prev)}
+				onClick={() => cycleMinimised()}
 			/>
 			<div className="mt-40 flex flex-1 flex-col">
 				{MENU_ITEMS.map((menu) => (
@@ -95,6 +98,6 @@ export function Sidebar() {
 					)}
 				</div>
 			)}
-		</aside>
+		</motion.aside>
 	);
 }

@@ -4,7 +4,7 @@ import { BaseLayout } from "~/components/layouts/base-layout";
 import { DocentCard, useAllDocents } from "~/features/docent";
 
 const DocentsPage: NextPageWithLayout = () => {
-	const { data: docents = [] } = useAllDocents();
+	const { data: docents = [], isLoading } = useAllDocents();
 	const [keyword, setKeyword] = useState("");
 	const filteredDocents = useMemo(
 		() =>
@@ -25,17 +25,25 @@ const DocentsPage: NextPageWithLayout = () => {
 			<h1 className="mb-8 text-center text-4xl font-bold">List of Docents</h1>
 			<SearchBar onChange={handleSearch} />
 			<div className="mt-8 flex flex-col gap-4">
-				{filteredDocents.map((docent) => (
-					<DocentCard
-						key={docent.name}
-						name={docent.name}
-						email={docent.email}
-						nidn={docent.nidn}
-						phone={docent.phone ?? "081234567890"}
-						photo={docent.photo ?? ""}
-						courses={docent.courses}
-					/>
-				))}
+				{isLoading ? (
+					<>
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+					</>
+				) : (
+					filteredDocents.map((docent) => (
+						<DocentCard
+							key={docent.name}
+							name={docent.name}
+							email={docent.email}
+							nidn={docent.nidn}
+							phone={docent.phone ?? "081234567890"}
+							photo={docent.photo ?? ""}
+							courses={docent.courses}
+						/>
+					))
+				)}
 			</div>
 		</div>
 	);

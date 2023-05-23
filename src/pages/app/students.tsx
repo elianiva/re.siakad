@@ -5,7 +5,7 @@ import { DocentCard } from "~/features/docent";
 import { useAllStudents } from "~/features/student";
 
 const StudentsPage: NextPageWithLayout = () => {
-	const { data: students = [] } = useAllStudents();
+	const { data: students = [], isLoading } = useAllStudents();
 	const [keyword, setKeyword] = useState("");
 	const filteredStudents = useMemo(
 		() =>
@@ -26,17 +26,25 @@ const StudentsPage: NextPageWithLayout = () => {
 			<h1 className="mb-8 text-center text-4xl font-bold">List of Docents</h1>
 			<SearchBar onChange={handleSearch} />
 			<div className="mt-8 flex flex-col gap-4">
-				{filteredStudents.map((student) => (
-					<DocentCard
-						key={student.name}
-						name={student.name}
-						photo={student.photo}
-						email={""}
-						nidn={""}
-						phone={""}
-						courses={[]}
-					/>
-				))}
+				{isLoading ? (
+					<>
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+					</>
+				) : (
+					filteredStudents.map((student) => (
+						<DocentCard
+							key={student.name}
+							name={student.name}
+							photo={student.photo}
+							email={""}
+							nidn={""}
+							phone={""}
+							courses={[]}
+						/>
+					))
+				)}
 			</div>
 		</div>
 	);

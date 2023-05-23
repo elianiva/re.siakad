@@ -7,7 +7,7 @@ const SEARCH_CRITERIA = ["course", "meeting", "lecture"] as const;
 type SearchCriteria = (typeof SEARCH_CRITERIA)[number];
 
 const CoursesPage: NextPageWithLayout = () => {
-	const { data: courses = [] } = useAllCourses();
+	const { data: courses = [], isLoading } = useAllCourses();
 	const [selectedCriteria, setSelectedCriteria] = useState<SearchCriteria[]>([]);
 	const [keyword, setKeyword] = useState("");
 	const filteredCourses = useMemo(() => {
@@ -60,14 +60,22 @@ const CoursesPage: NextPageWithLayout = () => {
 				))}
 			</div>
 			<div className="flex flex-col gap-4">
-				{filteredCourses.map((course) => (
-					<CourseCard
-						key={course.title}
-						docent={course.docent.name}
-						title={course.title}
-						meetings={course.meetings}
-					/>
-				))}
+				{isLoading ? (
+					<>
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+						<div className="h-20 w-full animate-pulse rounded-xl bg-neutral-300" />
+					</>
+				) : (
+					filteredCourses.map((course) => (
+						<CourseCard
+							key={course.title}
+							docent={course.docent.name}
+							title={course.title}
+							meetings={course.meetings}
+						/>
+					))
+				)}
 			</div>
 		</div>
 	);

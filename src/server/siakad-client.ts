@@ -108,12 +108,12 @@ async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileRe
 	// we need the filename part
 	// example -> 'Content-Disposition: inline; filename="Jobsheet 2 - Objek.pdf"'
 	// into    -> 'Jobsheet 2 - Object.pdf'
-	const fileName = response.headers.get("Content-Disposition")!.match(/filename="(.+)"/)![1]!;
+	const fileName = response.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1];
 
 	const [file, blobError] = await wrapResult(response.blob());
 	if (blobError !== null) throw new InvalidResponseError();
 
-	return { file, fileName };
+	return { file, fileName: fileName ?? "<no file name>" };
 }
 
 async function storeRemoteFile(name: string, file: Blob) {
