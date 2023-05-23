@@ -31,8 +31,6 @@ export const calendarRouter = createTRPCRouter({
 			singleEvents: true,
 		});
 
-		console.log({ events: events.data.items });
-
 		return (
 			events.data.items?.map((item) => ({
 				id: item.id,

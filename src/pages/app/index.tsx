@@ -1,79 +1,43 @@
-import { type PropsWithChildren } from "react";
-import { Calendar, Views, dateFnsLocalizer } from "react-big-calendar";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import idID from "date-fns/locale/id";
+import { type ReactNode } from "react";
+import { BiChalkboard as CourseIcon, BiDoorOpen as DoorIcon } from "react-icons/bi";
 import { BaseLayout } from "~/components/layouts/base-layout";
-import { useAllCalendarEvents } from "~/features/calendar";
+import { InformationBox, useCourseCount } from "~/features/course";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { ScheduleCalendar } from "~/features/calendar";
 
-const locales = {
-	"id-ID": idID,
+type BoxProps = {
+	icon: ReactNode;
+	title: string;
+	type: "course" | "meeting" | "lecture";
 };
+function Box(props: BoxProps) {
+	const { data: count = 0, isLoading } = useCourseCount(props.type);
 
-const localizer = dateFnsLocalizer({
-	format,
-	parse,
-	startOfWeek,
-	getDay,
-	locales,
-});
-
-// pastel colours for calendar events since I can't for some reason figure out how to get the colorId property from google api
-// so let's do it manually
-const EVENT_COLOUR_MAP: Record<string, string> = {
-	"Basis Data": "#039BE5",
-	"Praktikum Algoritma dan Struktur Data": "#33B679",
-	"Rekayasa Perangkat Lunak": "#F4511E",
-	"Sistem Operasi": "#E67C73",
-	Matematika: "#D50000",
-	"Ilmu Komunikasi dan Organisasi": "#7986CB",
-	"Bahasa Inggris": "#039BE5",
-};
-
-function Box(props: PropsWithChildren) {
 	return (
-		<div className="flex items-center justify-center rounded-lg bg-white/75 shadow-lg backdrop-blur-xl">
-			{props.children}
+		<div className="grid grid-cols-[7rem,auto] grid-rows-2 items-center rounded-lg bg-white/75 p-10 shadow-lg backdrop-blur-xl">
+			<div className="row-span-2 flex h-24 w-24 items-center justify-center rounded-full bg-orange-200 text-orange-800">
+				{props.icon}
+			</div>
+			<span className="block self-end text-2xl font-medium text-neutral-800">{props.title}</span>
+			{isLoading ? (
+				<div className="h-8 w-14 animate-pulse self-start rounded-md bg-neutral-200" />
+			) : (
+				<span className="block self-start text-4xl font-bold">{count}</span>
+			)}
 		</div>
 	);
 }
 
 const AppHomePage: NextPageWithLayout = () => {
-	const { data: events, isLoading } = useAllCalendarEvents();
-	const normalisedEvents =
-		events?.map((event) => ({
-			...event,
-			start: new Date(event.start!),
-			end: new Date(event.end!),
-		})) ?? [];
-
 	return (
 		<div className="grid h-full w-full grid-cols-3 grid-rows-[12rem,auto] gap-6">
-			<Box>Courses</Box>
-			<Box>Meetings</Box>
-			<Box>Lectures</Box>
-			<div className="col-span-3 rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
-				{isLoading ? (
-					"Loading"
-				) : (
-					<Calendar
-						localizer={localizer}
-						events={normalisedEvents}
-						defaultView={Views.WEEK}
-						startAccessor="start"
-						endAccessor="end"
-						className="h-auto max-h-[41rem]"
-						eventPropGetter={(event) => ({
-							style: {
-								backgroundColor: !!event.title ? EVENT_COLOUR_MAP[event.title] : "#039BE5",
-							},
-						})}
-					/>
-				)}
+			<Box type="course" icon={<CourseIcon className="h-12 w-12" />} title="Courses" />
+			<Box type="meeting" icon={<DoorIcon className="h-12 w-12" />} title="Meetings" />
+			<Box type="lecture" icon={<CourseIcon className="h-12 w-12" />} title="Lectures" />
+			<div className="col-span-2 flex items-center justify-center rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
+				<ScheduleCalendar />
 			</div>
+			<InformationBox />
 		</div>
 	);
 };

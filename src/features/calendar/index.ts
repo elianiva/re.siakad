@@ -1,1 +1,1 @@
-export * from "./services/all-events";
+export * from "./components/schedule-calendar";

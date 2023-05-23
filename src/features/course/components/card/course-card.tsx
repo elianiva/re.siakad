@@ -35,7 +35,7 @@ export function CourseCard(props: CourseCardProps) {
 					/>
 				</div>
 				<h1 className="col-start-2 row-start-1 text-xl font-bold">{props.title}</h1>
-				<div className="col-start-2 row-start-2 grid grid-cols-4 items-center gap-8">
+				<div className="col-start-2 row-start-2 grid grid-cols-3 items-center gap-8">
 					<div className="flex items-center gap-2 text-neutral-700">
 						<PersonIcon />
 						<span className="text-md">{props.docent}</span>
