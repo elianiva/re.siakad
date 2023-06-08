@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { countSchema, sendInformationSchema } from "~/features/course";
+import { countSchema, sendAnnouncementschema } from "~/features/course";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const courseRouter = createTRPCRouter({
@@ -38,18 +38,18 @@ export const courseRouter = createTRPCRouter({
 		if (input.type === "lecture") return ctx.prisma.lecture.count();
 		return -1;
 	}),
-	sendInformation: protectedProcedure.input(sendInformationSchema).mutation(async ({ input, ctx }) => {
+	sendAnnouncement: protectedProcedure.input(sendAnnouncementschema).mutation(async ({ input, ctx }) => {
 		const userId = ctx.session.user.id;
 		if (userId === undefined) throw new TRPCError({ code: "UNAUTHORIZED" });
-		await ctx.prisma.information.create({
+		await ctx.prisma.announcement.create({
 			data: {
 				student: { connect: { id: userId } },
 				message: input.message,
 			},
 		});
 	}),
-	informations: protectedProcedure.query(async ({ ctx }) => {
-		return ctx.prisma.information.findMany({
+	announcements: protectedProcedure.query(async ({ ctx }) => {
+		return ctx.prisma.announcement.findMany({
 			select: {
 				createdAt: true,
 				message: true,

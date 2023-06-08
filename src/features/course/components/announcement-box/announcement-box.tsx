@@ -3,21 +3,21 @@ import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { IoMdSend as SendIcon } from "react-icons/io";
 import { markdownToHtml } from "~/utils/md-to-html";
-import { useAllInformations } from "../../services/all-informations";
-import { useSendInformation } from "../../services/send-information";
+import { useAllAnnouncements } from "../../services/all-announcements";
+import { useSendAnnouncement } from "../../services/send-announcement";
 
-export function InformationBox() {
+export function AnnouncementBox() {
 	// form
 	const [message, setMessage] = useState("");
-	const { mutateAsync: sendInformationAsync } = useSendInformation();
-	const { data: informations = [], isLoading } = useAllInformations();
+	const { mutateAsync: sendAnnouncementAsync } = useSendAnnouncement();
+	const { data: announcements = [], isLoading } = useAllAnnouncements();
 
-	const informationBoxRef = useRef<HTMLDivElement>(null);
+	const announcementBoxRef = useRef<HTMLDivElement>(null);
 
-	async function handleSubmitInformation() {
+	async function handleSubmitAnnouncement() {
 		if (message.length <= 0) return;
 		setMessage("");
-		await toast.promise(sendInformationAsync({ message }), {
+		await toast.promise(sendAnnouncementAsync({ message }), {
 			loading: "Sending your message",
 			success: "Your message has been sent",
 			error: "Failed to send your message",
@@ -25,15 +25,15 @@ export function InformationBox() {
 	}
 
 	useEffect(() => {
-		if (informationBoxRef.current === null) return;
-		informationBoxRef.current.scrollTop = informationBoxRef.current.scrollHeight + 200;
-	}, [informations]);
+		if (announcementBoxRef.current === null) return;
+		announcementBoxRef.current.scrollTop = announcementBoxRef.current.scrollHeight + 200;
+	}, [announcements]);
 
 	return (
 		<div className="flex flex-col gap-6 rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
-			<span className="block text-2xl font-medium">Information Board</span>
+			<span className="block text-2xl font-medium">Announcement Board</span>
 			<div
-				ref={informationBoxRef}
+				ref={announcementBoxRef}
 				className="flex max-h-[32.8rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-400 scrollbar-track-rounded-full scrollbar-thumb-rounded-full"
 			>
 				{isLoading ? (
@@ -42,7 +42,7 @@ export function InformationBox() {
 						<div className="h-48 w-full animate-pulse rounded-lg bg-neutral-200 p-4 shadow-sm"></div>
 					</>
 				) : (
-					informations.map((info, index) => (
+					announcements.map((info, index) => (
 						<div key={index} className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
 							<div className="flex items-center justify-between gap-2 text-neutral-700">
 								<span className="block font-bold">{info.student.name}</span>
@@ -62,7 +62,7 @@ export function InformationBox() {
 					value={message}
 					onKeyDown={(e) => {
 						if (e.key === "Enter" && !e.shiftKey) {
-							void handleSubmitInformation();
+							void handleSubmitAnnouncement();
 						}
 					}}
 					onChange={(e) => {
@@ -76,7 +76,7 @@ export function InformationBox() {
 				/>
 				<button
 					disabled={message.length <= 0}
-					onClick={() => void handleSubmitInformation()}
+					onClick={() => void handleSubmitAnnouncement()}
 					className="mx-auto w-fit rounded-md bg-orange-400 px-8 text-xl font-bold text-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500"
 				>
 					<SendIcon />

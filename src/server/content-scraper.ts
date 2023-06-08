@@ -21,7 +21,7 @@ const SELECTOR = {
 	modtypeForum: "modtype_forum",
 	modtypePage: "modtype_page",
 	docentInfo: ".summary td[valign='top']",
-	studentInformation: ".username",
+	studentAnnouncement: ".username",
 	studentPhoto: ".dropdown-user img[alt='FOTO']",
 } as const;
 
@@ -153,9 +153,9 @@ type StudentData = {
 	nim: string;
 	name: string;
 };
-export function collectStudentInformation(html: string): StudentData {
+export function collectStudentAnnouncement(html: string): StudentData {
 	const $ = cheerio.load(html);
-	const [nim, name] = $(SELECTOR.studentInformation)
+	const [nim, name] = $(SELECTOR.studentAnnouncement)
 		.text()
 		.split("/")
 		.map((text) => text.trim());

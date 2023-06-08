@@ -2,23 +2,18 @@ version: "3.9"
 
 services:
     pgsql:
-        image: postgres:latest
-        container_name: "${PGSQL_CONTAINER_NAME:-pgsql}"
+        image: mysql:8
+        restart: unless-stopped
+        container_name: "${DB_CONTAINER_NAME:-pgsql}"
         environment:
-            POSTGRES_USER: "${PGSQL_USERNAME}"
-            POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
-            POSTGRES_DB: "${PGSQL_DATABASE}"
-        healthcheck:
-            test: ["CMD", "pg_isready", "-q", "-d", "${PGSQL_DATABASE}", "-U", "${PGSQL_USERNAME}"]
-            retries: 3
-            timeout: 5s
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            MYSQL_DATABASE: "${DB_DATABASE}"
         networks:
             - local
-        # Map the database container exposed port to the host port.
         ports:
-            - ${PGSQL_PORT:-5432}:5432
+            - ${DB_PORT:-3306}:3306
         volumes:
-            - pgsql_data:/var/lib/postgresql/data
+            - db_data:/var/lib/mysql:z
     minio:
         image: quay.io/minio/minio:RELEASE.2023-05-18T00-05-36Z
         command: server /data --console-address ":9001"
@@ -46,6 +41,6 @@ networks:
 
 # The Docker volumes.
 volumes:
-    pgsql_data:
+    db_data:
         driver: "local"
-        name: "${PGSQL_CONTAINER_NAME:-pgsql}_data"
+        name: "${DB_CONTAINER_NAME:-db}_data"

@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-    provider = "postgres"
-    url      = env("DATABASE_URL")
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 enum StudentRole {
@@ -22,14 +23,14 @@ model Student {
     dateOfBirth String?     @map("date_of_birth")
     address     String?
     role        StudentRole @default(member)
-    cookie      String?
+    cookie      String?     @db.Text
 
     createdAt DateTime @default(now()) @map("created_at")
 
-    information Information[]
+    announcments Announcement[]
 }
 
-model Information {
+model Announcement {
     id      String @id @default(cuid())
     message String
 
@@ -37,6 +38,9 @@ model Information {
 
     studentId String  @map("student_id")
     student   Student @relation(fields: [studentId], references: [id])
+
+    @@index([studentId])
+    @@map("Announcement")
 }
 
 model Docent {
@@ -70,6 +74,8 @@ model Lecture {
 
     meeting   Meeting @relation(fields: [meetingId], references: [id])
     meetingId String  @map("meeting_id")
+
+    @@index([meetingId])
 }
 
 model Course {
@@ -81,13 +87,15 @@ model Course {
     docentId String @map("docent_id")
 
     meetings Meeting[]
+
+    @@index([docentId])
 }
 
 model Meeting {
     id          String @id @default(cuid())
     title       String
     topic       String
-    competence  String
+    competence  String @db.Text
     courseTitle String
 
     lectures Lecture[]
@@ -96,4 +104,5 @@ model Meeting {
     course   Course @relation(fields: [courseId], references: [id])
 
     @@unique([courseTitle, title])
+    @@index([courseId])
 }

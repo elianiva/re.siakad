@@ -65,7 +65,7 @@ type StudentData = {
 };
 export async function collectStudentData(): Promise<StudentData> {
 	const page = await fetchWithCookies<string>(`${env.SIAKAD_URL}/beranda`, { parseResponse: (text) => text });
-	return contentScraper.collectStudentInformation(page);
+	return contentScraper.collectStudentAnnouncement(page);
 }
 
 type LoginOptions = {

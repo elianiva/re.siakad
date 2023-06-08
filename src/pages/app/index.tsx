@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { BiChalkboard as CourseIcon, BiDoorOpen as DoorIcon } from "react-icons/bi";
 import { BaseLayout } from "~/components/layouts/base-layout";
-import { InformationBox, useCourseCount } from "~/features/course";
+import { AnnouncementBox, useCourseCount } from "~/features/course";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { ScheduleCalendar } from "~/features/calendar";
 
@@ -37,7 +37,7 @@ const AppHomePage: NextPageWithLayout = () => {
 			<div className="col-span-2 flex items-center justify-center rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
 				<ScheduleCalendar />
 			</div>
-			<InformationBox />
+			<AnnouncementBox />
 		</div>
 	);
 };

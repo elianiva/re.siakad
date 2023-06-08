@@ -1,13 +1,13 @@
 // services
 export * from "./services/all-courses";
 export * from "./services/count";
-export * from "./services/all-informations";
+export * from "./services/all-announcements";
 
 // components
 export * from "./components/card/course-card";
 export * from "./components/card/meeting-card";
-export * from "./components/information-box/information-box";
+export * from "./components/announcement-box/announcement-box";
 
 // schema
 export * from "./schema/count";
-export * from "./schema/information";
+export * from "./schema/announcement";
