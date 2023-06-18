@@ -1,10 +1,9 @@
-import { format } from "date-fns";
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { IoMdSend as SendIcon } from "react-icons/io";
-import { markdownToHtml } from "~/utils/md-to-html";
 import { useAllAnnouncements } from "../../services/all-announcements";
 import { useSendAnnouncement } from "../../services/send-announcement";
+import { AnnouncementCard } from "./announcement-card";
 
 export function AnnouncementBox() {
 	// form
@@ -42,18 +41,13 @@ export function AnnouncementBox() {
 						<div className="h-48 w-full animate-pulse rounded-lg bg-neutral-200 p-4 shadow-sm"></div>
 					</>
 				) : (
-					announcements.map((info, index) => (
-						<div key={index} className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
-							<div className="flex items-center justify-between gap-2 text-neutral-700">
-								<span className="block font-bold">{info.student.name}</span>
-								<span className="block text-sm">{format(info.createdAt, "HH:mm - dd MMMM yyyy")}</span>
-							</div>
-							<hr className="my-3 h-[1px] w-full bg-neutral-300" />
-							<div
-								className="prose prose-sm prose-neutral"
-								dangerouslySetInnerHTML={{ __html: markdownToHtml(info.message) }}
-							/>
-						</div>
+					announcements.map((info) => (
+						<AnnouncementCard
+							key={info.createdAt.toISOString()}
+							timestamp={info.createdAt}
+							content={info.message}
+							name={info.student.name}
+						/>
 					))
 				)}
 			</div>
