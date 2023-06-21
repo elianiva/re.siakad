@@ -42,6 +42,8 @@ async function collectMoodleCookies(courseUrl: string) {
 			hasMoodleSession = true;
 		}
 	}
+
+	return cookieJar.get("MoodleSession")!.value;
 }
 
 function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
@@ -119,8 +121,13 @@ type RemoteFileResponse = {
 	file: Blob;
 };
 async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileResponse> {
+	let moodleSession = cookieJar.get("MoodleSession")?.value;
+	if (moodleSession === undefined) {
+		moodleSession = await collectMoodleCookies(`${env.LMS_URL}/course/view.php?id=${id}`);
+	}
+
 	const headers = new Headers();
-	headers.set("Cookie", cookie);
+	headers.set("Cookie", `${cookie}; MoodleSession=${moodleSession}`);
 
 	const [response, fetchError] = await wrapResult(
 		ofetch.native(`${env.LMS_URL}/mod/resource/view.php?id=${id}`, { headers, redirect: "follow" })
