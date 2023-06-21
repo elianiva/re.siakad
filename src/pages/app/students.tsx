@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { SearchBar } from "~/components/form/search-bar";
 import { BaseLayout } from "~/components/layouts/base-layout";
-import { DocentCard } from "~/features/docent";
 import { useAllStudents } from "~/features/student";
+import { StudentCard } from "~/features/student/components/card/student-card";
 
 const StudentsPage: NextPageWithLayout = () => {
 	const { data: students = [], isLoading } = useAllStudents();
@@ -23,7 +23,7 @@ const StudentsPage: NextPageWithLayout = () => {
 
 	return (
 		<div className="h-full w-full p-10">
-			<h1 className="mb-8 text-center text-4xl font-bold">List of Docents</h1>
+			<h1 className="mb-8 text-center text-4xl font-bold">List of Students</h1>
 			<SearchBar onChange={handleSearch} />
 			<div className="mt-8 flex flex-col gap-4">
 				{isLoading ? (
@@ -34,15 +34,7 @@ const StudentsPage: NextPageWithLayout = () => {
 					</>
 				) : (
 					filteredStudents.map((student) => (
-						<DocentCard
-							key={student.name}
-							name={student.name}
-							photo={student.photo}
-							email={""}
-							nidn={""}
-							phone={""}
-							courses={[]}
-						/>
+						<StudentCard key={student.name} nim={student.nim} name={student.name} photo={student.photo} />
 					))
 				)}
 			</div>

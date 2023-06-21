@@ -33,20 +33,25 @@ export function AnnouncementBox() {
 			<span className="block text-2xl font-medium">Announcement Board</span>
 			<div
 				ref={announcementBoxRef}
-				className="flex max-h-[32.8rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-400 scrollbar-track-rounded-full scrollbar-thumb-rounded-full"
+				className={`${
+					announcements.length < 1 ? "justify-center" : "justify-start"
+				} flex max-h-[32.8rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-400 scrollbar-track-rounded-full scrollbar-thumb-rounded-full`}
 			>
 				{isLoading ? (
 					<>
 						<div className="h-32 w-full animate-pulse rounded-lg bg-neutral-200 p-4 shadow-sm"></div>
 						<div className="h-48 w-full animate-pulse rounded-lg bg-neutral-200 p-4 shadow-sm"></div>
 					</>
+				) : announcements.length < 1 ? (
+					<span className="text-center text-neutral-500">No announcement has been posted yet</span>
 				) : (
-					announcements.map((info) => (
+					announcements.map((announcement) => (
 						<AnnouncementCard
-							key={info.createdAt.toISOString()}
-							timestamp={info.createdAt}
-							content={info.message}
-							name={info.student.name}
+							key={announcement.createdAt.toISOString()}
+							id={announcement.id}
+							timestamp={announcement.createdAt}
+							content={announcement.message}
+							name={announcement.student.name}
 						/>
 					))
 				)}

@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { PropsWithChildren } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "../sidebar/sidebar";
+import Head from "next/head";
 
 type BaseLayoutProps = PropsWithChildren<{
 	plain?: boolean;
@@ -10,6 +11,9 @@ type BaseLayoutProps = PropsWithChildren<{
 export function BaseLayout(props: BaseLayoutProps) {
 	return (
 		<>
+			<Head>
+				<title>RE:SIAKAD</title>
+			</Head>
 			<Image className="-z-20" src="/bg.jpg" alt="Background" fill style={{ objectFit: "cover" }} />
 			<div className="fixed bottom-0 left-0 right-0 top-0 -z-10 bg-white/60 backdrop-blur-md" />
 			<main className="hidden h-full md:gap-6 md:p-6 xl:flex">
