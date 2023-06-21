@@ -28,7 +28,7 @@ export const env = createEnv({
 		ADMIN_NIMS: z.string().transform((str) => str.split(",")),
 		BLACKLISTED_COURSES: z.string().transform((str) => str.split(",")),
 		MINIO_ENDPOINT: z.string().min(1),
-		MINIO_PORT: z.coerce.number(),
+		MINIO_PORT: z.coerce.number().optional(),
 		MINIO_ACCESS_KEY: z.string().min(1),
 		MINIO_SECRET_KEY: z.string().min(1),
 		MINIO_BUCKET_NAME: z.string().min(1),

@@ -6,5 +6,5 @@ export const minioClient = new Client({
 	secretKey: env.MINIO_SECRET_KEY,
 	endPoint: env.MINIO_ENDPOINT,
 	port: env.MINIO_PORT,
-	useSSL: false,
+	useSSL: env.NODE_ENV === "production",
 });
