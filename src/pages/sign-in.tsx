@@ -44,7 +44,7 @@ const SignInPage: NextPageWithLayout = () => {
 								placeholder="••••••••"
 								{...form.register("password")}
 							/>
-							<button className="mx-auto mt-8 w-fit rounded-md bg-gradient-to-tr from-orange-400 to-orange-300 px-8 py-4 text-xl font-bold text-neutral-900 shadow-xl shadow-orange-200">
+							<button className="mx-auto mt-8 w-fit rounded-md bg-gradient-to-tr from-orange-500 to-orange-400 px-6 py-2 text-xl font-bold text-white shadow-xl shadow-orange-200">
 								LOGIN
 							</button>
 						</Form>
