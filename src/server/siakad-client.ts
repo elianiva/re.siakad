@@ -134,14 +134,6 @@ async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileRe
 	);
 	if (fetchError !== null || response === null) throw new SiakadFetchError();
 
-	// redirected to other url to download the file
-	// if (response.status === 303) {
-	// 	const newLocation = response.headers.get("Location");
-	// 	if (newLocation === null) throw new SiakadFetchError("Failed to get the redirect location header");
-	// 	[response, fetchError] = await wrapResult(ofetch.native(response.headers.get("Location")!));
-	// }
-	// if (fetchError !== null || response === null) throw new SiakadFetchError();
-
 	// we need the filename part
 	// example -> 'Content-Disposition: inline; filename="Jobsheet 2 - Objek.pdf"'
 	// into    -> 'Jobsheet 2 - Object.pdf'
