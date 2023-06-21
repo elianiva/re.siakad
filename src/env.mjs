@@ -17,11 +17,11 @@ export const env = createEnv({
 			// VERCEL_URL doesn't include `https` so it cant be validated as a URL
 			process.env.VERCEL ? z.string().min(1) : z.string().url()
 		),
-		DB_CONTAINER_NAME: z.string().min(1),
-		DB_USERNAME: z.string().min(1),
-		DB_PASSWORD: z.string().min(1),
-		DB_DATABASE: z.string().min(1),
-		DB_PORT: z.coerce.number(),
+		DB_CONTAINER_NAME: z.string().min(1).optional(),
+		DB_USERNAME: z.string().min(1).optional(),
+		DB_PASSWORD: z.string().min(1).optional(),
+		DB_DATABASE: z.string().min(1).optional(),
+		DB_PORT: z.coerce.number().optional(),
 		SIAKAD_URL: z.string().url(),
 		SLC_URL: z.string().url(),
 		LMS_URL: z.string().url(),
