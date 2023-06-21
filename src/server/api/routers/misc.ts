@@ -25,9 +25,6 @@ export const miscRouter = createTRPCRouter({
 			credentials: { nim, password: input.password },
 			courseUrl: input.courseUrl,
 		});
-		await ctx.prisma.student.update({
-			where: { nim },
-			data: { cookie },
-		});
+		ctx.session.user.cookie = cookie;
 	}),
 });

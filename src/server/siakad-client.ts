@@ -23,6 +23,27 @@ function collectSlcCookies() {
 	return fetchWithCookies(env.SLC_URL, { method: "HEAD" });
 }
 
+async function collectMoodleCookies(courseUrl: string) {
+	// the first firstResponse, which has a url format of `slcUrl/spada/?gotourl=xxx` is used to get the cookie needed for the lms page itself
+	// the firstResponse is a <script>window.location="<lmsUrl>"</script>, which we do in the second request
+	// not sure why they use client side redirect instead of responding with 302 status code
+	await fetchWithCookies(`${env.SLC_URL}/spada?gotourl=${encodeURIComponent(courseUrl)}`);
+
+	// keep fetching until we get the cookie
+	while (!hasMoodleSession) {
+		const headers = new Headers();
+		headers.set("Sec-Fetch-Site", "same-site");
+		headers.set("Referer", env.SLC_URL);
+		await fetchWithCookies(courseUrl, { headers });
+
+		// we can't simply do `hasMoodleSession = true` after fetching
+		// because we can't be sure if it's succeeded or not
+		if (cookieJar.has("MoodleSession")) {
+			hasMoodleSession = true;
+		}
+	}
+}
+
 function postForm<TResponse>(url: RequestInfo, options: FetchOptions = {}) {
 	const headers = new Headers();
 	headers.set("Accept", "application/json");
@@ -100,10 +121,19 @@ type RemoteFileResponse = {
 async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileResponse> {
 	const headers = new Headers();
 	headers.set("Cookie", cookie);
+
 	const [response, fetchError] = await wrapResult(
-		ofetch.native(`${env.LMS_URL}/mod/resource/view.php?id=${id}`, { headers })
+		ofetch.native(`${env.LMS_URL}/mod/resource/view.php?id=${id}`, { headers, redirect: "follow" })
 	);
 	if (fetchError !== null || response === null) throw new SiakadFetchError();
+
+	// redirected to other url to download the file
+	// if (response.status === 303) {
+	// 	const newLocation = response.headers.get("Location");
+	// 	if (newLocation === null) throw new SiakadFetchError("Failed to get the redirect location header");
+	// 	[response, fetchError] = await wrapResult(ofetch.native(response.headers.get("Location")!));
+	// }
+	// if (fetchError !== null || response === null) throw new SiakadFetchError();
 
 	// we need the filename part
 	// example -> 'Content-Disposition: inline; filename="Jobsheet 2 - Objek.pdf"'
@@ -113,7 +143,7 @@ async function fetchRemoteFile(id: string, cookie: string): Promise<RemoteFileRe
 	const [file, blobError] = await wrapResult(response.blob());
 	if (blobError !== null) throw new InvalidResponseError();
 
-	return { file, fileName: fileName ?? "<no file name>" };
+	return { file, fileName: fileName ?? "unknown_file_name" };
 }
 
 async function storeRemoteFile(name: string, file: Blob) {
@@ -202,24 +232,6 @@ export function fetchCoursesList(): Promise<string> {
 }
 
 export async function fetchLmsContent(courseUrl: string): Promise<string> {
-	// the first firstResponse, which has a url format of `slcUrl/spada/?gotourl=xxx` is used to get the cookie needed for the lms page itself
-	// the firstResponse is a <script>window.location="<lmsUrl>"</script>, which we do in the second request
-	// not sure why they use client side redirect instead of responding with 302 status code
-	await fetchWithCookies(`${env.SLC_URL}/spada?gotourl=${encodeURIComponent(courseUrl)}`);
-
-	// keep fetching until we get the cookie
-	while (!hasMoodleSession) {
-		const headers = new Headers();
-		headers.set("Sec-Fetch-Site", "same-site");
-		headers.set("Referer", env.SLC_URL);
-		await fetchWithCookies(courseUrl, { headers });
-
-		// we can't simply do `hasMoodleSession = true` after fetching
-		// because we can't be sure if it's succeeded or not
-		if (cookieJar.has("MoodleSession")) {
-			hasMoodleSession = true;
-		}
-	}
-
+	await collectMoodleCookies(courseUrl);
 	return fetchWithCookies(courseUrl, { parseResponse: (text) => text });
 }

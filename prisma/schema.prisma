@@ -23,7 +23,6 @@ model Student {
     dateOfBirth String?     @map("date_of_birth")
     address     String?
     role        StudentRole @default(member)
-    cookie      String?     @db.Text
 
     createdAt DateTime @default(now()) @map("created_at")
 

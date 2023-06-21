@@ -8,7 +8,6 @@ CREATE TABLE `Student` (
     `date_of_birth` VARCHAR(191) NULL,
     `address` VARCHAR(191) NULL,
     `role` ENUM('member', 'admin') NOT NULL DEFAULT 'member',
-    `cookie` TEXT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Student_nim_key`(`nim`),

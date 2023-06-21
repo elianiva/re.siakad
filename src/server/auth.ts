@@ -9,6 +9,10 @@ import { prisma } from "./db";
 import { wrapResult } from "~/utils/wrap-result";
 import { sentry } from "./utils/sentry";
 
+type AuthenticatedStudent = Pick<Student, "id" | "nim" | "name" | "photo"> & {
+	cookie: string;
+};
+
 export const authOptions: NextAuthOptions = {
 	session: {
 		strategy: "jwt",
@@ -18,6 +22,7 @@ export const authOptions: NextAuthOptions = {
 			if (user !== undefined) {
 				token.id = user.id;
 				token.nim = user.nim;
+				token.cookie = user.cookie;
 			}
 			return token;
 		},
@@ -26,6 +31,7 @@ export const authOptions: NextAuthOptions = {
 				session.user = {
 					id: token.id,
 					nim: token.nim,
+					cookie: token.cookie,
 				} as User;
 			}
 			return session;
@@ -42,7 +48,7 @@ export const authOptions: NextAuthOptions = {
 					placeholder: "password",
 				},
 			},
-			async authorize(credentials): Promise<Pick<Student, "id" | "nim" | "name" | "photo">> {
+			async authorize(credentials): Promise<AuthenticatedStudent> {
 				if (credentials === undefined) throw new Error("Invalid credentials");
 
 				// need to reassign the `user` but not the `findUserError`
@@ -68,6 +74,7 @@ export const authOptions: NextAuthOptions = {
 				}
 
 				// create a user on their initial login
+				let studentCookie = "";
 				if (student === null) {
 					const [canSignIn, loginError] = await wrapResult(
 						siakadClient.login({
@@ -96,6 +103,7 @@ export const authOptions: NextAuthOptions = {
 
 					const hashedPassword = await hash(credentials.password);
 
+					// immediately return the cookie since we've collected the cookies when we're calling `collectStudentData()`
 					const [cookie, cookieError] = await wrapResult(siakadClient.collectCookies({ immediate: true }));
 					if (cookieError !== null) {
 						sentry.captureException(cookieError, (scope) => {
@@ -104,6 +112,7 @@ export const authOptions: NextAuthOptions = {
 						});
 						throw new Error("Failed to collect student's cookies");
 					}
+					studentCookie = cookie;
 
 					const [newStudent, createStudentError] = await wrapResult(
 						prisma.student.create({
@@ -111,7 +120,6 @@ export const authOptions: NextAuthOptions = {
 								...studentData,
 								role: env.ADMIN_NIMS.includes(credentials.nim) ? "admin" : "member",
 								password: hashedPassword,
-								cookie: cookie,
 							},
 							select: {
 								id: true,
@@ -136,11 +144,27 @@ export const authOptions: NextAuthOptions = {
 				const isPasswordMatch = await verify(student.password, credentials.password);
 				if (!isPasswordMatch) throw new Error("Incorrect password");
 
+				// collect cookies for existing student
+				const [cookie, cookieError] = await wrapResult(
+					siakadClient.collectCookies({
+						credentials: { nim: credentials.nim, password: credentials.password },
+					})
+				);
+				if (cookieError !== null) {
+					sentry.captureException(cookieError, (scope) => {
+						scope.setContext("student", { nim: credentials.nim });
+						return scope;
+					});
+					throw new Error("Failed to collect student's cookies");
+				}
+				studentCookie = cookie;
+
 				return {
 					id: student.id,
 					nim: student.nim,
 					name: student.name,
 					photo: student.photo,
+					cookie: studentCookie,
 				};
 			},
 		}),

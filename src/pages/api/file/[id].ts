@@ -16,19 +16,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const student = await prisma.student.findFirst({
 		where: { id: session.user.id },
-		select: { cookie: true, nim: true },
+		select: { nim: true },
 	});
 	if (student === null) {
 		res.status(404).json({ message: "No student found with the credentials you provided" });
 		return;
 	}
-	if (student.cookie === null) {
+	if (session.user.cookie === undefined) {
 		res.status(403).json({ message: "No active session available for this student" });
 		return;
 	}
 
 	const fileId = req.query.id as string;
-	const [response, fetchFileError] = await wrapResult(siakadClient.fetchFile(fileId, student.cookie));
+	const [response, fetchFileError] = await wrapResult(siakadClient.fetchFile(fileId, session.user.cookie));
 	if (fetchFileError !== null) {
 		if (fetchFileError instanceof UnauthorizedError) {
 			res.status(403).json({ message: "Session has expired" });
