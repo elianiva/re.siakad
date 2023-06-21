@@ -2,14 +2,13 @@ import { addDays, subDays } from "date-fns";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { google } from "googleapis";
 import { env } from "~/env.mjs";
-import secrets from "~/secrets/google-api-secrets.json";
 
 const jwtClient = new google.auth.JWT(
-	secrets.client_email,
+	env.GOOGLE_API_CLIENT_EMAIL,
 	undefined,
-	secrets.private_key,
+	env.GOOGLE_API_PRIVATE_KEY,
 	["https://www.googleapis.com/auth/calendar"],
-	secrets.client_email
+	env.GOOGLE_API_CLIENT_EMAIL
 );
 const calendar = google.calendar("v3");
 
