@@ -29,13 +29,13 @@ export function AnnouncementBox() {
 	}, [announcements]);
 
 	return (
-		<div className="flex flex-col gap-6 rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
+		<div className="grid grid-rows-[2rem,auto,3.4rem] gap-6 rounded-lg bg-white/75 p-6 shadow-lg backdrop-blur-xl">
 			<span className="block text-2xl font-medium">Announcement Board</span>
 			<div
 				ref={announcementBoxRef}
 				className={`${
 					announcements.length < 1 ? "justify-center" : "justify-start"
-				} flex max-h-[32.8rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-400 scrollbar-track-rounded-full scrollbar-thumb-rounded-full`}
+				} flex h-full max-h-[32.8rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg scrollbar-thin scrollbar-track-neutral-100 scrollbar-thumb-neutral-400 scrollbar-track-rounded-full scrollbar-thumb-rounded-full`}
 			>
 				{isLoading ? (
 					<>
